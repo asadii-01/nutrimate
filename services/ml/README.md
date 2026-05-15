@@ -47,11 +47,11 @@ starts; the affected endpoint returns 503 so the API can fall back (TRD §6.5).
 
 ## Endpoints
 
-| Method | Path                   | Purpose                              |
-|--------|------------------------|--------------------------------------|
-| GET    | `/ml/health`           | status + model versions + load time  |
-| POST   | `/ml/predict-calories` | ANN daily-calorie prediction         |
-| POST   | `/ml/recommend-meals`  | KNN meal-plan recommendation         |
+| Method | Path                   | Purpose                             |
+| ------ | ---------------------- | ----------------------------------- |
+| GET    | `/ml/health`           | status + model versions + load time |
+| POST   | `/ml/predict-calories` | ANN daily-calorie prediction        |
+| POST   | `/ml/recommend-meals`  | KNN meal-plan recommendation        |
 
 Interactive docs at `/docs`. Every response carries an `X-Response-Time-Ms`
 header. SLAs (TRD §6.4): ANN p95 ≤ 500 ms, KNN p95 ≤ 300 ms.

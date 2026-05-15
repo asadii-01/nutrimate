@@ -1,7 +1,7 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import helmet from "helmet";
-import pinoHttp from "pino-http";
+import { pinoHttp } from "pino-http";
 import { logger } from "./lib/logger.js";
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
 import { generalLimiter } from "./middleware/rateLimit.js";

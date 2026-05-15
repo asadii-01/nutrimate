@@ -1,10 +1,10 @@
 # NutriMate – Handoff Notes
 
-| Field | Value |
-|---|---|
-| Last updated | 2026-05-15 |
-| Author | Claude (Opus 4.7) + Asad |
-| Current phase | Phase 2 — complete and verified |
+| Field          | Value                                                                                            |
+| -------------- | ------------------------------------------------------------------------------------------------ |
+| Last updated   | 2026-05-15                                                                                       |
+| Author         | Claude (Opus 4.7) + Asad                                                                         |
+| Current phase  | Phase 3 — complete and verified                                                                  |
 | Companion docs | [`IMPLEMENTATION_PLAN.md`](./IMPLEMENTATION_PLAN.md), [`PRD.md`](./PRD.md), [`TRD.md`](./TRD.md) |
 
 ---
@@ -14,7 +14,9 @@
 - **Phase 0 (scaffolding):** complete and verified — lint, typecheck, build all green.
 - **Phase 1 (API skeleton):** complete and verified — deps installed, register → login → `/me` smoke test passes.
 - **Phase 2 (ML service):** complete and verified — ANN test MAE 87.9 kcal, KNN serving 52 seed plans, all 3 endpoints smoke-tested within SLA.
-- **Phases 3–6:** not started.
+- **Phase 3 (API business logic):** complete and verified — profile, predictions, recommendations, logs, nutrition-search wired; food catalog seeded (36 dishes); end-to-end smoke test green against live Mongo + ML.
+- **Phases 4–6:** not started.
+- **Project is now a git repo:** `git init` run on 2026-05-15; Phases 0–2 committed as the initial commit, Phase 3 as the second.
 - **Environment quirk that bit us:** the repo lives on an **NTFS partition** mounted via `ntfs3`. Cross-filesystem installs hang for hours. Fixes in place: `.npmrc` (project-local pnpm store) and the Python venv + pip cache pinned to the NTFS partition. Keep both.
 
 ---
@@ -38,9 +40,9 @@ nutrimate/                                 (this directory — repo root)
 ├── pnpm-lock.yaml                         # Root deps only — apps/api not in lock yet
 │
 ├── apps/
-│   ├── api/                               # ✅ Phase 1 — deps installed, smoke test passes
+│   ├── api/                               # ✅ Phases 1 & 3 — all endpoints wired, e2e smoke test passes
 │   │   ├── package.json, tsconfig.json, README.md
-│   │   └── src/                           # 26 .ts files (see “Phase 1 layout” below)
+│   │   └── src/                           # Phase 1 skeleton + Phase 3 modules (see layouts below)
 │   └── web/                               # Phase 4 placeholder
 │
 ├── services/
@@ -59,15 +61,15 @@ nutrimate/                                 (this directory — repo root)
 
 ## Phase status
 
-| Phase | Description | Status | Notes |
-|---|---|---|---|
-| 0 | Repo & tooling foundation | ✅ Done | `pnpm install` 47s, `pnpm build/typecheck/lint/format:check` all green. |
-| 1 | API skeleton + auth | ✅ Done | Deps installed; register → login → `/me` smoke test passes. |
-| 2 | ML service (ANN + KNN) | ✅ Done | ANN MAE 87.9 kcal; KNN 52 seed plans; `/ml/*` endpoints verified, p95 well under SLA. |
-| 3 | API business logic | ⬜ Not started | Next up. |
-| 4 | Frontend foundation | ⬜ Not started | |
-| 5 | Pages | ⬜ Not started | |
-| 6 | Quality gates | ⬜ Not started | |
+| Phase | Description               | Status         | Notes                                                                                           |
+| ----- | ------------------------- | -------------- | ----------------------------------------------------------------------------------------------- |
+| 0     | Repo & tooling foundation | ✅ Done        | `pnpm install` 47s, `pnpm build/typecheck/lint/format:check` all green.                         |
+| 1     | API skeleton + auth       | ✅ Done        | Deps installed; register → login → `/me` smoke test passes.                                     |
+| 2     | ML service (ANN + KNN)    | ✅ Done        | ANN MAE 87.9 kcal; KNN 52 seed plans; `/ml/*` endpoints verified, p95 well under SLA.           |
+| 3     | API business logic        | ✅ Done        | Profile/predictions/recommendations/logs/nutrition wired; catalog seeded; e2e smoke test green. |
+| 4     | Frontend foundation       | ⬜ Not started | Next up.                                                                                        |
+| 5     | Pages                     | ⬜ Not started |                                                                                                 |
+| 6     | Quality gates             | ⬜ Not started |                                                                                                 |
 
 ---
 
@@ -104,6 +106,7 @@ nutrimate/                                 (this directory — repo root)
 ## Phase 0 — what got built
 
 ### Root tooling
+
 - `package.json` (workspace root, ESM, scripts: build / typecheck / lint / format / format:check).
 - `pnpm-workspace.yaml` — workspaces: `apps/*`, `packages/*`.
 - `tsconfig.base.json` — strict, ES2022, bundler resolution.
@@ -111,16 +114,17 @@ nutrimate/                                 (this directory — repo root)
 - `.editorconfig`, `.gitignore`, `.env.example`, `.npmrc`.
 
 ### `packages/shared-types`
+
 Zod schemas + inferred TypeScript types, compiled to `dist/`. Single source of truth FE↔BE.
 
-| File | Exports |
-|---|---|
-| `common.ts` | enums (Gender, ActivityLevel, Goal, DietPref, BudgetTier, MealType, BmiCategory, PredictionSource, CostTier), IsoDate, ObjectId, ApiError shape |
-| `auth.ts` | Email/Password schemas, Register/Login/Refresh requests, AuthTokens |
-| `profile.ts` | ProfileInput / Profile / ProfilePatch (PRD physiological ranges) |
-| `prediction.ts` | Prediction + ML request/response DTOs |
-| `meal.ts` | Macros, FoodItem, Meal, MealPlan, MealRecommendRequest, FoodCatalogItem |
-| `log.ts` | MealLogEntry, WaterLogEntry, MealLogInput, WaterLogInput, DaySummary |
+| File            | Exports                                                                                                                                         |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `common.ts`     | enums (Gender, ActivityLevel, Goal, DietPref, BudgetTier, MealType, BmiCategory, PredictionSource, CostTier), IsoDate, ObjectId, ApiError shape |
+| `auth.ts`       | Email/Password schemas, Register/Login/Refresh requests, AuthTokens                                                                             |
+| `profile.ts`    | ProfileInput / Profile / ProfilePatch (PRD physiological ranges)                                                                                |
+| `prediction.ts` | Prediction + ML request/response DTOs                                                                                                           |
+| `meal.ts`       | Macros, FoodItem, Meal, MealPlan, MealRecommendRequest, FoodCatalogItem                                                                         |
+| `log.ts`        | MealLogEntry, WaterLogEntry, MealLogInput, WaterLogInput, DaySummary                                                                            |
 
 Import as `@nutrimate/shared-types`.
 
@@ -277,32 +281,118 @@ uvicorn nutrimate_ml.main:app --host 0.0.0.0 --port 8000
 
 ---
 
+## Phase 3 — what got built (complete and verified)
+
+### Layout (new files under `apps/api/src/`)
+
+```
+apps/api/src/
+├── lib/
+│   ├── bmi.ts                       # computeBmi + WHO category
+│   ├── dates.ts                     # UTC-midnight helpers, ISO date parsing
+│   ├── mifflin.ts                   # Mifflin–St Jeor BMR/TDEE + goal delta (fallback)
+│   └── mlClient.ts                  # fetch wrapper for the ML service (timeout, MlServiceError)
+├── jobs/
+│   └── scheduler.ts                 # in-process monthly maintenance (log rollup)
+├── data/
+│   └── food-catalog-seed.json       # 36 dishes, generated from ML seed_data.py DISHES
+├── scripts/
+│   └── seedFoodCatalog.ts           # idempotent food_catalog seeder (upsert by slug)
+├── models/MealPlan.ts               # NEW collection meal_plans (see decision #16)
+└── modules/
+    ├── profile/                     # GET/POST/PATCH /profile
+    ├── predictions/                 # GET /predictions/calories, POST /recompute
+    ├── recommendations/             # GET /today, POST /swap, POST /regenerate
+    ├── logs/                        # POST /meal|/water, GET /day|/range
+    └── nutrition/                   # GET /search, GET /item/:id (+ providers)
+```
+
+### Behaviors worth knowing
+
+- **Calorie target = ML maintenance kcal + goal delta** (`lose −500`, `gain +500`,
+  `maintain 0`), clamped to a 1200 kcal floor. Same delta applies to the fallback.
+- **ML fallback (TRD §6.5):** `mlClient` throws `MlServiceError` only on timeout/5xx;
+  predictions fall back to Mifflin–St Jeor (`source:"fallback"`), recommendations
+  fall back to a curated `food_catalog` composer (`source:"fallback"`). A 4xx from
+  ML is a caller bug and is surfaced, not swallowed.
+- **`POST /profile` awaits the recompute** so the dashboard has a prediction
+  immediately; **`PATCH /profile` recomputes in the background** (FR-2.7).
+- **Recommendations are persisted** in `meal_plans` per `{userId, date}` so `/swap`
+  and `/regenerate` mutate a stable stored plan. `/swap` rebuilds the day and
+  replaces only the requested meal; the catalog composer picks randomly among the
+  3 closest-kcal dishes so swap/regenerate produce variety.
+- **Water logging is cumulative** — repeated `POST /logs/water` calls add glasses
+  to the same day's record.
+- **Nutrition search** checks the 24h `nutrition_cache` first, then the external
+  provider (Spoonacular if keyed, else Edamam); with no API keys it degrades to a
+  `food_catalog` text search. Only external results are cached (the cache `source`
+  enum is spoonacular|edamam).
+- **Background scheduler** is a dependency-free interval check (no node-cron). It
+  runs monthly: prunes `meal_logs`/`water_logs` older than 3 months (TRD Q4) and
+  logs a reminder to retrain the KNN. `lastRunMonth` is seeded at boot so it fires
+  on month rollover, not on every restart.
+
+### Verification (2026-05-15)
+
+Brought up Mongo (ad-hoc `mongod`), the ML service, and the API; seeded the
+catalog (36 dishes); ran an end-to-end smoke test:
+
+- register → `POST /profile` (28M/178/75/moderate/lose) → `GET /predictions/calories`
+  → **2171 kcal, `source:"ann"`, BMI 23.7** (ANN ~2671 maintenance − 500).
+- `GET /recommendations/today` → `source:"knn"`, total 2271 kcal vs 2171 target;
+  `matchedPlanIds` populated. `POST /swap` and `/regenerate` work.
+- Vegan profile → regenerate returns only vegan-tagged dishes (diet filter holds).
+- `POST /logs/meal` (kcal recomputed from items), cumulative `POST /logs/water`,
+  `GET /logs/day` and `/logs/range` (7-day) all correct.
+- `GET /nutrition/search` + `/item/:id` serve from `food_catalog` (no API keys).
+- Error paths: bad enum → 422, missing bearer → 401, bad item id → 404.
+
+**Phase 3 exit criteria:** end-to-end profile → prediction → recommendation works
+against real data. ✅ Verified.
+
+### How to resume / re-run
+
+```bash
+sudo systemctl start mongod          # or ad-hoc: mongod --dbpath ~/data/db --fork --logpath ~/data/log/mongod.log
+cd services/ml && source .venv/bin/activate && uvicorn nutrimate_ml.main:app --port 8000 &
+cd ../.. && pnpm --filter @nutrimate/api seed:catalog    # one-time, idempotent
+pnpm --filter @nutrimate/api dev
+```
+
+---
+
 ## Decisions log (since the original plan)
 
-| # | Decision | Why |
-|---|---|---|
-| 1 | Docker skipped for MVP | User instruction. |
-| 2 | Sentry skipped for MVP | User instruction. Structured logs via pino only. |
-| 3 | CI/CD skipped for MVP | User instruction. Deploys are manual. |
-| 4 | Password reset removed | User instruction; PRD already updated. No `/auth/forgot-password` or `/auth/reset`. |
-| 5 | Project-local pnpm store | NTFS hang fix. |
-| 6 | bcryptjs over bcrypt | Avoids native postinstall hang on NTFS. |
-| 7 | Hand-authored docs added to `.prettierignore` | Don't reformat user-curated docs (PRD, TRD, design, project-description, designs/.../DESIGN.md). |
-| 8 | `engine-strict=false` in .npmrc | Allow Node 24 even though engines pin says `>=20` (would otherwise warn). |
-| 9 | Python 3.11 via **pyenv** (3.11.15) | User chose pyenv over uv / system apt. Compiled from source; build deps installed via apt. |
-| 10 | ML venv + pip cache on the NTFS partition | Same cross-fs reasoning as the pnpm store. `PIP_CACHE_DIR=services/ml/.pip-cache`. |
-| 11 | BMI is the engineered 8th ANN feature | TRD §6.1 lists 7 raw inputs but specifies `Input(8)`; BMI is the natural fill and the API already computes it. |
-| 12 | TensorFlow 2.16.2 (not 2.15) | `pyproject.toml` allows `>=2.15,<2.17`; pip resolved 2.16.2 on Python 3.11. Uses Keras 3. |
-| 13 | Recommender scales servings in 0.1 steps | Coarser (0.5) steps collapsed most scale factors to 1.0 and missed the ±10% kcal band. |
+| #   | Decision                                              | Why                                                                                                                                |
+| --- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Docker skipped for MVP                                | User instruction.                                                                                                                  |
+| 2   | Sentry skipped for MVP                                | User instruction. Structured logs via pino only.                                                                                   |
+| 3   | CI/CD skipped for MVP                                 | User instruction. Deploys are manual.                                                                                              |
+| 4   | Password reset removed                                | User instruction; PRD already updated. No `/auth/forgot-password` or `/auth/reset`.                                                |
+| 5   | Project-local pnpm store                              | NTFS hang fix.                                                                                                                     |
+| 6   | bcryptjs over bcrypt                                  | Avoids native postinstall hang on NTFS.                                                                                            |
+| 7   | Hand-authored docs added to `.prettierignore`         | Don't reformat user-curated docs (PRD, TRD, design, project-description, designs/.../DESIGN.md).                                   |
+| 8   | `engine-strict=false` in .npmrc                       | Allow Node 24 even though engines pin says `>=20` (would otherwise warn).                                                          |
+| 9   | Python 3.11 via **pyenv** (3.11.15)                   | User chose pyenv over uv / system apt. Compiled from source; build deps installed via apt.                                         |
+| 10  | ML venv + pip cache on the NTFS partition             | Same cross-fs reasoning as the pnpm store. `PIP_CACHE_DIR=services/ml/.pip-cache`.                                                 |
+| 11  | BMI is the engineered 8th ANN feature                 | TRD §6.1 lists 7 raw inputs but specifies `Input(8)`; BMI is the natural fill and the API already computes it.                     |
+| 12  | TensorFlow 2.16.2 (not 2.15)                          | `pyproject.toml` allows `>=2.15,<2.17`; pip resolved 2.16.2 on Python 3.11. Uses Keras 3.                                          |
+| 13  | Recommender scales servings in 0.1 steps              | Coarser (0.5) steps collapsed most scale factors to 1.0 and missed the ±10% kcal band.                                             |
+| 14  | Native `fetch` for ML + nutrition calls (no axios)    | Node 24 has global `fetch` + `AbortSignal.timeout`; avoids another NTFS-prone install.                                             |
+| 15  | Dependency-free interval scheduler, not `node-cron`   | Plan suggested node-cron; a small `setInterval` month-rollover check avoids a network install and is enough for MVP.               |
+| 16  | Added a `meal_plans` collection (not in TRD §5.1's 7) | `/recommendations/swap` and `/regenerate` need a stable persisted plan to mutate; recomputing per call would be non-deterministic. |
+| 17  | Nutrition search falls back to `food_catalog`         | No Spoonacular/Edamam keys are configured; a local text search keeps the endpoint useful and is the graceful-degrade path.         |
+| 18  | `pino-http` imported as a named export                | Version drift (10.3→10.5 in the lockfile) broke the default import under NodeNext; `import { pinoHttp }` fixes the typecheck.      |
 
 ---
 
 ## Known follow-ups when picking work back up
 
 - [ ] Decide whether to keep `bcryptjs` or revert to `bcrypt` for production (see Decision #6).
-- [ ] Begin **Phase 3 (API business logic)** — wire profile / predictions / recommendations / logs / nutrition-search on top of the Phase 1 skeleton; the API calls the ML endpoints built in Phase 2, with a Mifflin–St Jeor fallback on 5xx/timeout.
-- [ ] Phase 3 also seeds the Mongo `food_catalog` — reuse `services/ml/pipelines/seed_data.py` `DISHES` (36 Pakistani dishes already tagged with `costTier` / `hostelFriendly` / diet).
-- [ ] Phases 4 (FE foundation), 5 (Pages), 6 (Quality gates).
+- [ ] Begin **Phase 4 (Frontend foundation)** — Vite + React + Tailwind shell; translate `designs/nutrimate_design_system/DESIGN.md` into the Tailwind theme; auth context + axios client with the 401-refresh flow; reusable components.
+- [ ] Phases 5 (Pages), 6 (Quality gates).
+- [ ] Wire up real Spoonacular/Edamam keys when available — the nutrition module already proxies + caches; without keys it falls back to `food_catalog` (Decision #17).
+- [ ] The monthly scheduler only fires on a month rollover within a single long-lived process (Decision #15); for production, trigger `runMonthlyMaintenance()` from a real cron / systemd timer.
 - [ ] Optional: replace synthetic-only ANN data with real Kaggle datasets (TRD §6.1 mentions them; not shipped — synthetic augmentation alone meets the MAE target).
 
 ---

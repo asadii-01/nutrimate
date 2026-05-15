@@ -1,6 +1,7 @@
 import { buildApp } from "./app.js";
 import { env } from "./config/env.js";
 import { connectMongo, disconnectMongo } from "./db/mongo.js";
+import { startScheduler } from "./jobs/scheduler.js";
 import { logger } from "./lib/logger.js";
 
 async function main(): Promise<void> {
@@ -11,8 +12,11 @@ async function main(): Promise<void> {
     logger.info({ port: env.API_PORT }, "api listening");
   });
 
+  const stopScheduler = startScheduler();
+
   const shutdown = async (signal: string): Promise<void> => {
     logger.info({ signal }, "shutting down");
+    stopScheduler();
     server.close();
     await disconnectMongo();
     process.exit(0);

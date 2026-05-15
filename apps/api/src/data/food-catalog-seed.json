@@ -1,0 +1,578 @@
+[
+  {
+    "foodId": "anda_paratha",
+    "name": "Egg Paratha",
+    "kcal": 380,
+    "macros": {
+      "protein": 12,
+      "carbs": 38,
+      "fats": 19
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["nonveg"],
+    "mealType": "breakfast",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "halwa_puri",
+    "name": "Halwa Puri",
+    "kcal": 700,
+    "macros": {
+      "protein": 12,
+      "carbs": 90,
+      "fats": 30
+    },
+    "costTier": "medium",
+    "hostelFriendly": false,
+    "dietTags": ["veg"],
+    "mealType": "breakfast",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "aloo_paratha",
+    "name": "Aloo Paratha",
+    "kcal": 320,
+    "macros": {
+      "protein": 7,
+      "carbs": 45,
+      "fats": 12
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["vegan", "veg"],
+    "mealType": "breakfast",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "chana_chaat",
+    "name": "Chana Chaat",
+    "kcal": 280,
+    "macros": {
+      "protein": 12,
+      "carbs": 40,
+      "fats": 8
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["vegan", "veg"],
+    "mealType": "breakfast",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "omelette_bread",
+    "name": "Omelette with Bread",
+    "kcal": 300,
+    "macros": {
+      "protein": 16,
+      "carbs": 26,
+      "fats": 15
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["nonveg"],
+    "mealType": "breakfast",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "oats_milk",
+    "name": "Oats with Milk & Banana",
+    "kcal": 280,
+    "macros": {
+      "protein": 10,
+      "carbs": 45,
+      "fats": 7
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["veg"],
+    "mealType": "breakfast",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "sweet_lassi",
+    "name": "Sweet Lassi",
+    "kcal": 220,
+    "macros": {
+      "protein": 6,
+      "carbs": 30,
+      "fats": 8
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["veg"],
+    "mealType": "breakfast",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "paneer_paratha",
+    "name": "Paneer Paratha",
+    "kcal": 420,
+    "macros": {
+      "protein": 16,
+      "carbs": 44,
+      "fats": 20
+    },
+    "costTier": "medium",
+    "hostelFriendly": true,
+    "dietTags": ["veg"],
+    "mealType": "breakfast",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "boiled_eggs",
+    "name": "Boiled Eggs (2)",
+    "kcal": 156,
+    "macros": {
+      "protein": 13,
+      "carbs": 1,
+      "fats": 11
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["nonveg"],
+    "mealType": "breakfast",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "chicken_biryani",
+    "name": "Chicken Biryani",
+    "kcal": 600,
+    "macros": {
+      "protein": 28,
+      "carbs": 65,
+      "fats": 22
+    },
+    "costTier": "medium",
+    "hostelFriendly": false,
+    "dietTags": ["nonveg"],
+    "mealType": "lunch",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "beef_pulao",
+    "name": "Beef Pulao",
+    "kcal": 580,
+    "macros": {
+      "protein": 25,
+      "carbs": 70,
+      "fats": 20
+    },
+    "costTier": "medium",
+    "hostelFriendly": false,
+    "dietTags": ["nonveg"],
+    "mealType": "lunch",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "daal_chawal",
+    "name": "Daal Chawal",
+    "kcal": 450,
+    "macros": {
+      "protein": 15,
+      "carbs": 75,
+      "fats": 8
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["vegan", "veg"],
+    "mealType": "lunch",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "daal_roti",
+    "name": "Daal with 2 Roti",
+    "kcal": 380,
+    "macros": {
+      "protein": 14,
+      "carbs": 55,
+      "fats": 10
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["vegan", "veg"],
+    "mealType": "lunch",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "chicken_karahi_roti",
+    "name": "Chicken Karahi with 2 Roti",
+    "kcal": 600,
+    "macros": {
+      "protein": 35,
+      "carbs": 50,
+      "fats": 26
+    },
+    "costTier": "high",
+    "hostelFriendly": false,
+    "dietTags": ["nonveg"],
+    "mealType": "lunch",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "sabzi_roti",
+    "name": "Mixed Vegetable Sabzi with 2 Roti",
+    "kcal": 360,
+    "macros": {
+      "protein": 11,
+      "carbs": 55,
+      "fats": 11
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["vegan", "veg"],
+    "mealType": "lunch",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "veg_biryani",
+    "name": "Vegetable Biryani",
+    "kcal": 470,
+    "macros": {
+      "protein": 13,
+      "carbs": 72,
+      "fats": 14
+    },
+    "costTier": "low",
+    "hostelFriendly": false,
+    "dietTags": ["vegan", "veg"],
+    "mealType": "lunch",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "chana_masala_roti",
+    "name": "Chana Masala with 2 Roti",
+    "kcal": 420,
+    "macros": {
+      "protein": 15,
+      "carbs": 62,
+      "fats": 12
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["vegan", "veg"],
+    "mealType": "lunch",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "palak_paneer_roti",
+    "name": "Palak Paneer with 2 Roti",
+    "kcal": 500,
+    "macros": {
+      "protein": 20,
+      "carbs": 46,
+      "fats": 24
+    },
+    "costTier": "medium",
+    "hostelFriendly": false,
+    "dietTags": ["veg"],
+    "mealType": "lunch",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "fish_curry_rice",
+    "name": "Fish Curry with Rice",
+    "kcal": 520,
+    "macros": {
+      "protein": 30,
+      "carbs": 60,
+      "fats": 16
+    },
+    "costTier": "medium",
+    "hostelFriendly": false,
+    "dietTags": ["nonveg"],
+    "mealType": "lunch",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "chicken_salad",
+    "name": "Grilled Chicken Salad",
+    "kcal": 340,
+    "macros": {
+      "protein": 32,
+      "carbs": 14,
+      "fats": 16
+    },
+    "costTier": "medium",
+    "hostelFriendly": true,
+    "dietTags": ["nonveg"],
+    "mealType": "lunch",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "chapati_sabzi",
+    "name": "2 Chapati with Sabzi",
+    "kcal": 360,
+    "macros": {
+      "protein": 11,
+      "carbs": 55,
+      "fats": 11
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["vegan", "veg"],
+    "mealType": "dinner",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "grilled_chicken_rice",
+    "name": "Grilled Chicken with Rice",
+    "kcal": 480,
+    "macros": {
+      "protein": 38,
+      "carbs": 50,
+      "fats": 12
+    },
+    "costTier": "medium",
+    "hostelFriendly": false,
+    "dietTags": ["nonveg"],
+    "mealType": "dinner",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "grilled_chicken_salad",
+    "name": "Grilled Chicken with Salad",
+    "kcal": 320,
+    "macros": {
+      "protein": 35,
+      "carbs": 12,
+      "fats": 14
+    },
+    "costTier": "medium",
+    "hostelFriendly": true,
+    "dietTags": ["nonveg"],
+    "mealType": "dinner",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "light_daal_roti",
+    "name": "Daal with 1 Roti",
+    "kcal": 280,
+    "macros": {
+      "protein": 12,
+      "carbs": 40,
+      "fats": 7
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["vegan", "veg"],
+    "mealType": "dinner",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "mutton_karahi_roti",
+    "name": "Mutton Karahi with 2 Roti",
+    "kcal": 680,
+    "macros": {
+      "protein": 35,
+      "carbs": 45,
+      "fats": 38
+    },
+    "costTier": "high",
+    "hostelFriendly": false,
+    "dietTags": ["nonveg"],
+    "mealType": "dinner",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "veg_pulao_raita",
+    "name": "Veg Pulao with Raita",
+    "kcal": 450,
+    "macros": {
+      "protein": 12,
+      "carbs": 70,
+      "fats": 12
+    },
+    "costTier": "low",
+    "hostelFriendly": false,
+    "dietTags": ["veg"],
+    "mealType": "dinner",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "tofu_stirfry_rice",
+    "name": "Tofu Stir-fry with Rice",
+    "kcal": 420,
+    "macros": {
+      "protein": 20,
+      "carbs": 52,
+      "fats": 14
+    },
+    "costTier": "medium",
+    "hostelFriendly": true,
+    "dietTags": ["vegan", "veg"],
+    "mealType": "dinner",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "keema_roti",
+    "name": "Chicken Keema with 2 Roti",
+    "kcal": 540,
+    "macros": {
+      "protein": 30,
+      "carbs": 48,
+      "fats": 24
+    },
+    "costTier": "medium",
+    "hostelFriendly": false,
+    "dietTags": ["nonveg"],
+    "mealType": "dinner",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "samosa",
+    "name": "Samosa",
+    "kcal": 250,
+    "macros": {
+      "protein": 5,
+      "carbs": 30,
+      "fats": 12
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["vegan", "veg"],
+    "mealType": "snack",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "almonds",
+    "name": "Almonds (handful)",
+    "kcal": 145,
+    "macros": {
+      "protein": 5,
+      "carbs": 5,
+      "fats": 13
+    },
+    "costTier": "medium",
+    "hostelFriendly": true,
+    "dietTags": ["vegan", "veg"],
+    "mealType": "snack",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "banana",
+    "name": "Banana",
+    "kcal": 105,
+    "macros": {
+      "protein": 1,
+      "carbs": 27,
+      "fats": 0
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["vegan", "veg"],
+    "mealType": "snack",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "apple",
+    "name": "Apple",
+    "kcal": 95,
+    "macros": {
+      "protein": 0,
+      "carbs": 25,
+      "fats": 0
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["vegan", "veg"],
+    "mealType": "snack",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "plain_yogurt",
+    "name": "Plain Yogurt (1 cup)",
+    "kcal": 150,
+    "macros": {
+      "protein": 8,
+      "carbs": 12,
+      "fats": 8
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["veg"],
+    "mealType": "snack",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "fruit_chaat",
+    "name": "Fruit Chaat",
+    "kcal": 160,
+    "macros": {
+      "protein": 2,
+      "carbs": 38,
+      "fats": 1
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["vegan", "veg"],
+    "mealType": "snack",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "peanuts",
+    "name": "Roasted Peanuts (handful)",
+    "kcal": 170,
+    "macros": {
+      "protein": 7,
+      "carbs": 6,
+      "fats": 14
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["vegan", "veg"],
+    "mealType": "snack",
+    "region": "pakistani",
+    "source": "curated"
+  },
+  {
+    "foodId": "boiled_egg_snack",
+    "name": "Boiled Egg (1)",
+    "kcal": 78,
+    "macros": {
+      "protein": 6,
+      "carbs": 1,
+      "fats": 5
+    },
+    "costTier": "low",
+    "hostelFriendly": true,
+    "dietTags": ["nonveg"],
+    "mealType": "snack",
+    "region": "pakistani",
+    "source": "curated"
+  }
+]

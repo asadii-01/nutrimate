@@ -1,6 +1,7 @@
 export { User } from "./User.js";
 export { Profile } from "./Profile.js";
 export { Prediction } from "./Prediction.js";
+export { MealPlan } from "./MealPlan.js";
 export { MealLog } from "./MealLog.js";
 export { WaterLog } from "./WaterLog.js";
 export { FoodCatalog } from "./FoodCatalog.js";

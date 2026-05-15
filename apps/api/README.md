@@ -27,9 +27,9 @@ The API listens on `http://localhost:4000` by default.
 
 ## Endpoints (Phase 1)
 
-| Method | Path                  | Notes                                                      |
-| ------ | --------------------- | ---------------------------------------------------------- |
-| GET    | `/healthz`            | Liveness + Mongo connectivity                              |
+| Method | Path                    | Notes                                                      |
+| ------ | ----------------------- | ---------------------------------------------------------- |
+| GET    | `/healthz`              | Liveness + Mongo connectivity                              |
 | POST   | `/api/v1/auth/register` | `{ email, password }` → `{ accessToken, refreshToken, … }` |
 | POST   | `/api/v1/auth/login`    | `{ email, password }` → tokens                             |
 | POST   | `/api/v1/auth/refresh`  | `{ refreshToken }` → new tokens, revokes old jti           |

@@ -18,7 +18,10 @@ export function signAccessToken(userId: string): string {
 }
 
 export function signRefreshToken(userId: string, jti: string): string {
-  const opts: SignOptions = { expiresIn: env.JWT_REFRESH_TTL as SignOptions["expiresIn"], jwtid: jti };
+  const opts: SignOptions = {
+    expiresIn: env.JWT_REFRESH_TTL as SignOptions["expiresIn"],
+    jwtid: jti,
+  };
   return jwt.sign({ sub: userId, type: "refresh" }, env.JWT_REFRESH_SECRET, opts);
 }
 

@@ -9,7 +9,8 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "eslint src --ext .ts"
+    "lint": "eslint src --ext .ts",
+    "seed:catalog": "tsx src/scripts/seedFoodCatalog.ts"
   },
   "dependencies": {
     "@nutrimate/shared-types": "workspace:*",

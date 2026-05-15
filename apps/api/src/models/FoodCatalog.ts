@@ -1,14 +1,21 @@
 import { Schema, model, type InferSchemaType } from "mongoose";
 
+const MacrosSchema = new Schema(
+  {
+    protein: { type: Number, required: true },
+    carbs: { type: Number, required: true },
+    fats: { type: Number, required: true },
+  },
+  { _id: false },
+);
+
 const FoodCatalogSchema = new Schema(
   {
+    slug: { type: String, unique: true, sparse: true },
     name: { type: String, required: true },
+    mealType: { type: String, enum: ["breakfast", "lunch", "dinner", "snack"] },
     kcal: { type: Number, required: true },
-    macros: {
-      protein: { type: Number, required: true },
-      carbs: { type: Number, required: true },
-      fats: { type: Number, required: true },
-    },
+    macros: { type: MacrosSchema, required: true },
     vitamins: { type: Schema.Types.Mixed },
     costTier: { type: String, required: true, enum: ["low", "medium", "high"] },
     hostelFriendly: { type: Boolean, default: false },
