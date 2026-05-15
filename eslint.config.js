@@ -23,5 +23,20 @@ export default [
       "@typescript-eslint/consistent-type-imports": "warn",
     },
   },
+  {
+    // Front-end (apps/web) runs in the browser, not Node.
+    files: ["apps/web/**/*.{ts,tsx}"],
+    languageOptions: {
+      globals: { ...globals.browser },
+      parserOptions: {
+        ecmaFeatures: { jsx: true },
+      },
+    },
+    rules: {
+      // TypeScript already resolves identifiers; core no-undef would also
+      // false-positive on JSX. The browser globals above cover the rest.
+      "no-undef": "off",
+    },
+  },
   prettier,
 ];

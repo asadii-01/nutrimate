@@ -6,16 +6,13 @@ recommendation) models. Built in **Phase 2** of the
 
 ## Local setup
 
-Use Python 3.11 (TensorFlow 2.16 does not support 3.13+). The repo lives on an
-NTFS partition — keep the venv and pip cache on the same partition to avoid the
-cross-filesystem hang documented in `HANDOFF.md`.
+Use Python 3.11 (TensorFlow 2.16 does not support 3.13+).
 
 ```bash
 cd services/ml
 pyenv local 3.11.15            # or any 3.11.x
 python -m venv .venv
 source .venv/bin/activate
-export PIP_CACHE_DIR="$PWD/.pip-cache"
 pip install -e ".[dev]"
 ```
 

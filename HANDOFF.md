@@ -2,9 +2,10 @@
 
 | Field          | Value                                                                                            |
 | -------------- | ------------------------------------------------------------------------------------------------ |
-| Last updated   | 2026-05-15                                                                                       |
+| Last updated   | 2026-05-15 (Phase 4 verified — install, typecheck, build, auth smoke test green)                 |
 | Author         | Claude (Opus 4.7) + Asad                                                                         |
-| Current phase  | Phase 3 — complete and verified                                                                  |
+| Current phase  | Phase 4 — complete and verified; ready to start Phase 5                                          |
+| Repo location  | `~/develop/ml` (ext4) — moved off the NTFS partition on 2026-05-15                               |
 | Companion docs | [`IMPLEMENTATION_PLAN.md`](./IMPLEMENTATION_PLAN.md), [`PRD.md`](./PRD.md), [`TRD.md`](./TRD.md) |
 
 ---
@@ -15,9 +16,26 @@
 - **Phase 1 (API skeleton):** complete and verified — deps installed, register → login → `/me` smoke test passes.
 - **Phase 2 (ML service):** complete and verified — ANN test MAE 87.9 kcal, KNN serving 52 seed plans, all 3 endpoints smoke-tested within SLA.
 - **Phase 3 (API business logic):** complete and verified — profile, predictions, recommendations, logs, nutrition-search wired; food catalog seeded (36 dishes); end-to-end smoke test green against live Mongo + ML.
-- **Phases 4–6:** not started.
+- **Phase 4 (frontend foundation):** **complete and verified.** Vite + React + TS + Tailwind shell — design-system theme, auth context, axios client with 401-refresh, responsive nav, reusable components, login/register page. `pnpm install` ran successfully once network was back; `pnpm --filter @nutrimate/web typecheck` and `build` are both green (vite build: 1719 modules, 493 kB JS); the auth smoke test (register → login → `/me`) passes against the live API and the web dev server serves the shell on `:5173`. The shell code needed **no fixes** — it typechecked clean as written.
+- **Phases 5–6:** not started.
 - **Project is now a git repo:** `git init` run on 2026-05-15; Phases 0–2 committed as the initial commit, Phase 3 as the second.
-- **Environment quirk that bit us:** the repo lives on an **NTFS partition** mounted via `ntfs3`. Cross-filesystem installs hang for hours. Fixes in place: `.npmrc` (project-local pnpm store) and the Python venv + pip cache pinned to the NTFS partition. Keep both.
+- **Relocated off NTFS (2026-05-15):** the repo was moved from
+  `/run/media/.../Development/ML` (NTFS) to **`~/develop/ml`** (ext4) to escape
+  the cross-filesystem install hangs. The copy excluded `services/ml/.venv` and
+  `services/ml/.pip-cache` — **the ML venv must be recreated here** (see
+  "Recreating the ML venv" below). `node_modules` + `.pnpm-store` were copied
+  intact (hardlinks preserved) and verified working (`apps/api` typecheck green
+  at the new location). The old NTFS copy is left in place until the move is
+  confirmed; delete it once happy.
+- **NTFS workarounds removed (2026-05-15):** now on ext4, the two store-pinning
+  workarounds were deleted — `store-dir=./.pnpm-store` is gone from `.npmrc`
+  (pnpm uses the default `~/.local/share/pnpm/store`), and the
+  `PIP_CACHE_DIR` export is gone from `services/ml/README.md` (pip uses
+  `~/.cache/pip`). The old `./.pnpm-store/` dir was deleted after the
+  `pnpm install` that resolved the `apps/web` deps rebuilt `node_modules` from
+  the global store. The ML `.venv` was also recreated at the ext4 location.
+  `bcryptjs` (Decision #6) is kept as-is: it works and reverting to native
+  `bcrypt` would reintroduce build risk for ~40 ms of hashing cost.
 
 ---
 
@@ -43,7 +61,9 @@ nutrimate/                                 (this directory — repo root)
 │   ├── api/                               # ✅ Phases 1 & 3 — all endpoints wired, e2e smoke test passes
 │   │   ├── package.json, tsconfig.json, README.md
 │   │   └── src/                           # Phase 1 skeleton + Phase 3 modules (see layouts below)
-│   └── web/                               # Phase 4 placeholder
+│   └── web/                               # 🟡 Phase 4 — code complete, deps not installed (no network)
+│       ├── package.json, vite.config.ts, tailwind.config.js, tsconfig.json
+│       └── src/                           # shell: theme, auth, api client, nav, components
 │
 ├── services/
 │   └── ml/                                # ✅ Phase 2 — FastAPI app + pipelines + trained models
@@ -67,7 +87,7 @@ nutrimate/                                 (this directory — repo root)
 | 1     | API skeleton + auth       | ✅ Done        | Deps installed; register → login → `/me` smoke test passes.                                     |
 | 2     | ML service (ANN + KNN)    | ✅ Done        | ANN MAE 87.9 kcal; KNN 52 seed plans; `/ml/*` endpoints verified, p95 well under SLA.           |
 | 3     | API business logic        | ✅ Done        | Profile/predictions/recommendations/logs/nutrition wired; catalog seeded; e2e smoke test green. |
-| 4     | Frontend foundation       | ⬜ Not started | Next up.                                                                                        |
+| 4     | Frontend foundation       | ✅ Done        | Shell built (theme, auth, client, nav, components). `pnpm install`, typecheck, `vite build`, and auth smoke test all green. |
 | 5     | Pages                     | ⬜ Not started |                                                                                                 |
 | 6     | Quality gates             | ⬜ Not started |                                                                                                 |
 
@@ -75,16 +95,19 @@ nutrimate/                                 (this directory — repo root)
 
 ## Environment notes (important)
 
-### NTFS hang on cross-filesystem pnpm installs
+### NTFS hang on cross-filesystem pnpm installs — RESOLVED (repo moved to ext4)
 
-- The repo lives on `/dev/nvme0n1p1` (NTFS via `ntfs3`).
-- pnpm's default content-addressable store is on `~/.local/share/pnpm/store` (ext4 root).
-- Hardlinks cannot cross filesystems, so pnpm falls back to **copying** every file.
-- On NTFS this can hang indefinitely (we saw a 4h 43m hang, 0 IO progress in the last 45m).
-- **Fix in place:** `.npmrc` at the repo root pins `store-dir=./.pnpm-store` so the store sits on the same NTFS partition and hardlinks work.
-- **First install after applying the fix:** 47s.
+Historical context — the repo originally lived on an NTFS partition
+(`/dev/nvme0n1p1`, `ntfs3`). pnpm's default store is on `~/.local/share/pnpm/store`
+(ext4); hardlinks can't cross filesystems, so pnpm fell back to copying every
+file, which hung indefinitely on NTFS (a 4h 43m hang was observed). The
+workaround was `store-dir=./.pnpm-store` in `.npmrc` (keep the store on the
+NTFS partition so hardlinks work).
 
-> Keep `.npmrc` checked in. If you ever clone this repo elsewhere, you can delete that line.
+**Resolved on 2026-05-15:** the repo moved to `~/develop/ml` (ext4) and the
+`store-dir` line was removed from `.npmrc`. pnpm uses the default global store
+again. No workaround needed. (See the "NTFS workarounds removed" bullet at the
+top of this file for the `.pnpm-store/` cleanup leftover.)
 
 ### bcrypt → bcryptjs swap
 
@@ -98,7 +121,7 @@ nutrimate/                                 (this directory — repo root)
 - Node v24.15.0 (via nvm) — `package.json` engines pin is `>=20`.
 - pnpm 9.15.0 (via corepack).
 - Python 3.11.15 installed via **pyenv** (host default is 3.14, which TF can't use). pyenv init lines were appended to `~/.bashrc`. `services/ml/.python-version` pins `3.11.15`.
-- ML venv at `services/ml/.venv` (on NTFS, beside the code). pip cache pinned via `PIP_CACHE_DIR=services/ml/.pip-cache` — same NTFS cross-fs reasoning as the pnpm store.
+- ML venv at `services/ml/.venv`, beside the code. pip uses the default `~/.cache/pip` (the `PIP_CACHE_DIR=services/ml/.pip-cache` NTFS workaround was removed on 2026-05-15 when the repo moved to ext4).
 - Installed ML stack: TensorFlow 2.16.2, scikit-learn 1.8.0, FastAPI 0.136.1, pandas 2.3.3, numpy 1.26.4.
 
 ---
@@ -271,6 +294,21 @@ services/ml/
 **Phase 2 exit criteria:** both endpoints serve from a saved model; `/ml/health`
 reports loaded versions. ✅ Verified.
 
+### Recreating the ML venv (required after the NTFS move)
+
+The `.venv` was **not** copied during the relocation (its scripts had absolute
+paths baked to the old NTFS location). Recreate it once — needs network:
+
+```bash
+cd services/ml
+python -m venv .venv                 # pyenv pins Python 3.11.15 via .python-version
+source .venv/bin/activate
+pip install -e .                     # installs from pyproject.toml
+```
+
+The trained model artifacts under `services/ml/models/` **were** copied, so the
+service can serve immediately — no retraining needed unless you want it.
+
 ### How to resume / re-run
 
 ```bash
@@ -361,6 +399,96 @@ pnpm --filter @nutrimate/api dev
 
 ---
 
+## Phase 4 — what got built (complete and verified)
+
+The whole `apps/web` shell was written, then verified on 2026-05-15:
+`pnpm install` resolved the front-end deps, `tsc --noEmit` typecheck and
+`vite build` both pass clean (no code fixes were needed), and the auth flow
+works against the live API.
+
+### Stack (versions pinned in `apps/web/package.json`)
+
+Vite 5 · React 18 · TypeScript 5.7 · Tailwind 3 · TanStack Query 5 ·
+React Router 6 · axios · Recharts 2 (declared, used in Phase 5) ·
+`lucide-react` for icons.
+
+### Layout
+
+```
+apps/web/
+├── index.html, vite.config.ts, postcss.config.js
+├── tailwind.config.js                 # hand-translated from DESIGN.md
+├── tsconfig.json                      # noEmit; typecheck = tsc --noEmit
+├── public/favicon.svg
+└── src/
+    ├── main.tsx                       # providers: Query → Router → Auth → Toast
+    ├── App.tsx                        # route map (public vs. protected)
+    ├── index.css                      # Tailwind layers + keyframes
+    ├── lib/
+    │   ├── env.ts                     # VITE_API_BASE_URL resolution
+    │   ├── api.ts                     # axios client — bearer + 401 refresh
+    │   ├── tokenStore.ts              # localStorage tokens (TRD Q1)
+    │   ├── queryClient.ts             # TanStack Query defaults
+    │   └── cn.ts                      # className joiner (no clsx dep)
+    ├── features/auth/                 # AuthContext/Provider, useAuth, guards
+    ├── components/
+    │   ├── ui/                        # Button, Input, Card, Spinner
+    │   ├── toast/                     # ToastProvider + useToast
+    │   ├── MealCard, ProgressRing, StatCard, MotivationalChip, Drawer
+    │   └── PagePlaceholder            # Phase-4 stub for Phase-5 pages
+    ├── layout/                        # AppShell, TopNav, SideNav, BottomNav, Logo
+    └── pages/                         # AuthPage + 5 placeholder destinations
+```
+
+### Behaviours worth knowing
+
+- **Tailwind theme** is a 1:1 hand-translation of
+  `designs/nutrimate_design_system/DESIGN.md` frontmatter — colour tokens,
+  Plus Jakarta Sans type scale, 4/8px spacing, radius scale, Level 1/2
+  shadows (`shadow-card`, `shadow-floating`, `shadow-nav`).
+- **Token refresh:** `lib/api.ts` attaches the bearer, and on a 401 (non-auth
+  route) runs a **single-flight** `/auth/refresh` — concurrent 401s share one
+  refresh promise, then replay. A failed refresh clears storage and emits a
+  `nutrimate:logout` window event the `AuthProvider` listens for.
+- **Tokens in `localStorage`** (TRD Q1) — all storage access funnels through
+  `lib/tokenStore.ts`.
+- **Routing:** `/login` + `/register` are public-only (redirect away when
+  signed in); everything under `<AppShell>` is behind `<ProtectedRoute>`.
+  `AuthProvider` bootstraps by calling `GET /me` to validate stored tokens.
+- **Responsive shell:** fixed 256px `SideNav` on desktop, `BottomNav` 5-tab
+  bar on mobile, sticky `TopNav` (search + bell + avatar menu) on both.
+- **Phase 5 pages are stubs** — every destination renders `<PagePlaceholder>`;
+  only `AuthPage` is fully functional.
+
+### Verification (2026-05-15)
+
+- `pnpm install` resolved all `apps/web` deps from the global store.
+- `pnpm --filter @nutrimate/web typecheck` — clean (`tsc --noEmit`).
+- `pnpm --filter @nutrimate/web build` — `vite build` green: 1719 modules,
+  493 kB JS / 21.7 kB CSS.
+- Auth smoke test against the live stack (Mongo + ML + API): register →
+  login → `GET /me` with bearer all return correct payloads.
+- Web dev server serves the NutriMate shell on `:5173` (HTTP 200).
+
+### How to re-run
+
+```bash
+pnpm --filter @nutrimate/web typecheck
+pnpm --filter @nutrimate/web build
+
+# Auth smoke test — needs Mongo + ML + API up (see Phase 3 resume steps)
+pnpm --filter @nutrimate/api dev               # API on :4000
+pnpm --filter @nutrimate/web dev               # web on :5173
+# → open http://localhost:5173, register/login, confirm the shell renders
+#   and the bottom/side nav switches responsively.
+```
+
+**Phase 4 exit criteria:** auth flow works against the live API; shell renders
+responsive nav. ✅ Verified (responsive-nav check is a manual browser look —
+the layout components compile and the shell mounts).
+
+---
+
 ## Decisions log (since the original plan)
 
 | #   | Decision                                              | Why                                                                                                                                |
@@ -369,12 +497,12 @@ pnpm --filter @nutrimate/api dev
 | 2   | Sentry skipped for MVP                                | User instruction. Structured logs via pino only.                                                                                   |
 | 3   | CI/CD skipped for MVP                                 | User instruction. Deploys are manual.                                                                                              |
 | 4   | Password reset removed                                | User instruction; PRD already updated. No `/auth/forgot-password` or `/auth/reset`.                                                |
-| 5   | Project-local pnpm store                              | NTFS hang fix.                                                                                                                     |
-| 6   | bcryptjs over bcrypt                                  | Avoids native postinstall hang on NTFS.                                                                                            |
+| 5   | Project-local pnpm store                              | ~~NTFS hang fix.~~ **Reverted 2026-05-15** — repo moved to ext4; `store-dir` removed from `.npmrc`, default global store back in use. |
+| 6   | bcryptjs over bcrypt                                  | Avoided native postinstall hang on NTFS. **Kept** post-move: works fine, ~40 ms hashing cost not worth reverting.                   |
 | 7   | Hand-authored docs added to `.prettierignore`         | Don't reformat user-curated docs (PRD, TRD, design, project-description, designs/.../DESIGN.md).                                   |
 | 8   | `engine-strict=false` in .npmrc                       | Allow Node 24 even though engines pin says `>=20` (would otherwise warn).                                                          |
 | 9   | Python 3.11 via **pyenv** (3.11.15)                   | User chose pyenv over uv / system apt. Compiled from source; build deps installed via apt.                                         |
-| 10  | ML venv + pip cache on the NTFS partition             | Same cross-fs reasoning as the pnpm store. `PIP_CACHE_DIR=services/ml/.pip-cache`.                                                 |
+| 10  | ML venv + pip cache on the NTFS partition             | ~~Same cross-fs reasoning as the pnpm store.~~ **Reverted 2026-05-15** — `PIP_CACHE_DIR` workaround removed; pip uses `~/.cache/pip`. |
 | 11  | BMI is the engineered 8th ANN feature                 | TRD §6.1 lists 7 raw inputs but specifies `Input(8)`; BMI is the natural fill and the API already computes it.                     |
 | 12  | TensorFlow 2.16.2 (not 2.15)                          | `pyproject.toml` allows `>=2.15,<2.17`; pip resolved 2.16.2 on Python 3.11. Uses Keras 3.                                          |
 | 13  | Recommender scales servings in 0.1 steps              | Coarser (0.5) steps collapsed most scale factors to 1.0 and missed the ±10% kcal band.                                             |
@@ -383,14 +511,22 @@ pnpm --filter @nutrimate/api dev
 | 16  | Added a `meal_plans` collection (not in TRD §5.1's 7) | `/recommendations/swap` and `/regenerate` need a stable persisted plan to mutate; recomputing per call would be non-deterministic. |
 | 17  | Nutrition search falls back to `food_catalog`         | No Spoonacular/Edamam keys are configured; a local text search keeps the endpoint useful and is the graceful-degrade path.         |
 | 18  | `pino-http` imported as a named export                | Version drift (10.3→10.5 in the lockfile) broke the default import under NodeNext; `import { pinoHttp }` fixes the typecheck.      |
+| 19  | Web `tsc --noEmit` for typecheck (not `tsc -b`)        | Avoids composite/project-reference setup; Vite owns the actual build, so `tsc` only needs to typecheck.                            |
+| 20  | `lucide-react` for icons (design mock used Material Symbols) | DESIGN.md "Shapes" specifies Lucide/Phosphor; Lucide ships as tree-shakeable React components — no icon font/CDN needed.      |
+| 21  | Dependency-free `cn()` helper (no `clsx`/`tailwind-merge`) | The component set is small and never needs class de-duplication; one fewer NTFS-prone install.                                 |
+| 22  | Vite `envDir: "../../"`                                | Lets `apps/web` read `VITE_API_BASE_URL` from the monorepo-root `.env`. Only `VITE_`-prefixed vars reach the client bundle.        |
+| 23  | Root `eslint.config.js` gains an `apps/web` override   | Front-end files need browser globals + JSX; `no-undef` is disabled there (TypeScript resolves identifiers).                       |
 
 ---
 
 ## Known follow-ups when picking work back up
 
 - [ ] Decide whether to keep `bcryptjs` or revert to `bcrypt` for production (see Decision #6).
-- [ ] Begin **Phase 4 (Frontend foundation)** — Vite + React + Tailwind shell; translate `designs/nutrimate_design_system/DESIGN.md` into the Tailwind theme; auth context + axios client with the 401-refresh flow; reusable components.
-- [ ] Phases 5 (Pages), 6 (Quality gates).
+- [ ] Begin **Phase 5 (Pages)** — replace the `<PagePlaceholder>` stubs with the
+      9 real screens (landing, auth split-layout polish, profile wizard,
+      dashboard, recommendations, nutrition search, analytics, settings,
+      empty/loading/error states). HTML mocks live in `designs/*/code.html`.
+- [ ] Phase 6 (Quality gates).
 - [ ] Wire up real Spoonacular/Edamam keys when available — the nutrition module already proxies + caches; without keys it falls back to `food_catalog` (Decision #17).
 - [ ] The monthly scheduler only fires on a month rollover within a single long-lived process (Decision #15); for production, trigger `runMonthlyMaintenance()` from a real cron / systemd timer.
 - [ ] Optional: replace synthetic-only ANN data with real Kaggle datasets (TRD §6.1 mentions them; not shipped — synthetic augmentation alone meets the MAE target).
