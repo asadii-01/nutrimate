@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NutriMate - Smart Nutrition for Real Life</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "surface-bright": "#f8f9ff",
+                            "inverse-on-surface": "#eaf1ff",
+                            "primary": "#006b2c",
+                            "error": "#ba1a1a",
+                            "on-primary-container": "#f7fff2",
+                            "on-primary-fixed": "#002109",
+                            "tertiary-fixed": "#d8e2ff",
+                            "primary-fixed": "#7ffc97",
+                            "on-secondary": "#ffffff",
+                            "primary-container": "#00873a",
+                            "tertiary-fixed-dim": "#adc6ff",
+                            "on-tertiary-fixed": "#001a42",
+                            "surface-tint": "#006e2d",
+                            "secondary-fixed": "#ffdbca",
+                            "on-error-container": "#93000a",
+                            "surface-variant": "#d3e4fe",
+                            "on-error": "#ffffff",
+                            "secondary-container": "#fd761a",
+                            "outline-variant": "#bdcaba",
+                            "inverse-primary": "#62df7d",
+                            "on-background": "#0b1c30",
+                            "secondary-fixed-dim": "#ffb690",
+                            "tertiary": "#0058be",
+                            "inverse-surface": "#213145",
+                            "on-surface-variant": "#3e4a3d",
+                            "outline": "#6e7b6c",
+                            "on-surface": "#0b1c30",
+                            "on-tertiary-fixed-variant": "#004395",
+                            "secondary": "#9d4300",
+                            "surface-container": "#e5eeff",
+                            "on-secondary-fixed-variant": "#783200",
+                            "surface-container-lowest": "#ffffff",
+                            "surface-container-low": "#eff4ff",
+                            "surface-dim": "#cbdbf5",
+                            "background": "#f8f9ff",
+                            "on-secondary-container": "#5c2400",
+                            "surface-container-highest": "#d3e4fe",
+                            "primary-fixed-dim": "#62df7d",
+                            "surface": "#f8f9ff",
+                            "on-tertiary": "#ffffff",
+                            "on-tertiary-container": "#fefcff",
+                            "error-container": "#ffdad6",
+                            "on-primary": "#ffffff",
+                            "on-primary-fixed-variant": "#005320",
+                            "on-secondary-fixed": "#341100",
+                            "surface-container-high": "#dce9ff",
+                            "tertiary-container": "#2170e4"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0.25rem",
+                            "lg": "0.5rem",
+                            "xl": "0.75rem",
+                            "full": "9999px"
+                    },
+                    "spacing": {
+                            "xs": "8px",
+                            "gutter": "16px",
+                            "sm": "16px",
+                            "margin-mobile": "20px",
+                            "container-max": "1200px",
+                            "lg": "32px",
+                            "base": "4px",
+                            "xl": "48px",
+                            "md": "24px"
+                    },
+                    "fontFamily": {
+                            "body-md": ["Plus Jakarta Sans"],
+                            "label-md": ["Plus Jakarta Sans"],
+                            "caption": ["Plus Jakarta Sans"],
+                            "display-lg": ["Plus Jakarta Sans"],
+                            "headline-lg": ["Plus Jakarta Sans"],
+                            "headline-lg-mobile": ["Plus Jakarta Sans"],
+                            "body-lg": ["Plus Jakarta Sans"],
+                            "headline-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                            "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                            "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                            "caption": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                            "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                            "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                            "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                            "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                            "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8f9ff; color: #0b1c30; }
+        .ambient-shadow-sm { box-shadow: 0px 4px 20px rgba(15, 23, 42, 0.05); }
+        .ambient-shadow-md { box-shadow: 0px 10px 25px rgba(15, 23, 42, 0.1); }
+        .glass-card { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); }
+    </style>
+</head>
+<body class="bg-surface-bright text-on-surface antialiased flex flex-col min-h-screen">
+<!-- TopAppBar Navigation Shell -->
+<header class="fixed top-0 w-full z-50 bg-surface-bright shadow-[0px_4px_20px_rgba(15,23,42,0.05)]">
+<div class="flex justify-between items-center px-margin-mobile md:px-lg h-16 w-full max-w-container-max mx-auto">
+<div class="font-display-lg text-headline-md text-primary tracking-tight">NutriMate</div>
+<nav class="hidden md:flex gap-md items-center">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Features</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Testimonials</a>
+</nav>
+<div class="flex items-center gap-sm">
+<a class="hidden md:inline-block font-label-md text-label-md text-primary hover:bg-surface-container-low px-4 py-2 rounded-lg transition-colors" href="#">Login</a>
+<a class="font-label-md text-label-md bg-primary text-on-primary px-4 py-2 rounded-xl active:scale-95 duration-200 shadow-sm hover:opacity-90" href="#">Get Started Free</a>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-grow pt-24 pb-xl px-margin-mobile md:px-lg max-w-container-max mx-auto w-full">
+<!-- Hero Section -->
+<section class="flex flex-col md:flex-row items-center justify-between gap-lg mb-xl md:py-lg">
+<div class="flex-1 space-y-sm md:space-y-md text-center md:text-left pt-sm">
+<h1 class="font-display-lg text-headline-lg-mobile md:text-display-lg text-on-surface leading-tight">
+                    Smart Nutrition for <span class="text-primary">Real Life</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg mx-auto md:mx-0">
+                    Achieve your vitality goals with AI-guided meal plans tailored to your lifestyle. From quick gym prep to budget-friendly local favorites, NutriMate makes tracking effortless.
+                </p>
+<div class="flex flex-col sm:flex-row gap-sm justify-center md:justify-start pt-xs">
+<button class="bg-primary text-on-primary font-label-md text-label-md px-6 py-3 rounded-xl active:scale-95 duration-200 ambient-shadow-md">Get Started Free</button>
+<button class="bg-surface-container-low text-primary font-label-md text-label-md px-6 py-3 rounded-xl active:scale-95 duration-200 border border-outline-variant hover:bg-surface-container transition-colors">Login</button>
+</div>
+</div>
+<!-- Hero Bento Composition -->
+<div class="flex-1 relative w-full aspect-square md:aspect-auto md:h-[500px] mt-lg md:mt-0">
+<div class="absolute inset-0 bg-gradient-to-tr from-surface-container-high to-surface-bright rounded-[2rem] ambient-shadow-sm overflow-hidden flex items-center justify-center">
+<img alt="Healthy fresh food bowl" class="object-cover w-full h-full opacity-90" data-alt="A beautifully plated bowl of fresh, vibrant salad with grilled chicken, quinoa, and avocado, set on a clean white modern table. The lighting is soft, natural, and bright, emphasizing the fresh textures of the greens and grains. The overall aesthetic is clean, light-mode, and healthy, aligning with a modern vitality brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFWKcVRKlxiQKsKJETVfTP91PTnJCaNXaG74o8ElumvNZeg4yNJzz-JdpZ4lh1VQMSmvfz18SmC9IgheVqPp-5Q9Ym1PKaK9vJrb_9vZpK1YBok1Y6QF_P2rOL9tJsUBNuO0hPf3V93v2gB06JlDQdtJuQhKn4zQlpW680AP6rWacDP25UOQYzNHCDD-rvoJfwQPNh2AMtJy-6Hr_e4DO66XW2_iSOMicXDi-8xWMJZK66KpA4MHJsrSdXVCgn_C_FrJLFvdvnonq0"/>
+<!-- Floating Glass Cards for UI representation -->
+<div class="absolute top-1/4 left-4 glass-card p-sm rounded-xl ambient-shadow-md flex items-center gap-xs">
+<div class="bg-secondary-container text-on-secondary-container rounded-full p-2 flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+</div>
+<div>
+<p class="font-caption text-caption text-on-surface-variant">Daily Calorie Goal</p>
+<p class="font-label-md text-label-md text-on-surface">1,850 kcal</p>
+</div>
+</div>
+<div class="absolute bottom-1/4 right-4 glass-card p-sm rounded-xl ambient-shadow-md flex flex-col gap-xs">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<p class="font-label-md text-label-md text-on-surface">Daal Chawal Logged</p>
+</div>
+<div class="flex gap-2">
+<span class="bg-surface-dim text-on-surface-variant font-caption text-caption px-2 py-1 rounded-full">Budget Friendly</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Feature Highlights Bento Grid -->
+<section class="mb-xl py-lg">
+<div class="text-center mb-lg">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">Guided Vitality at Every Step</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mx-auto">Powerful tools designed for clarity, approachability, and lasting habit formation.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- AI Prediction Card -->
+<div class="col-span-1 md:col-span-2 bg-surface-container-lowest rounded-2xl p-md ambient-shadow-sm flex flex-col justify-between border border-outline-variant/30 relative overflow-hidden group">
+<div class="relative z-10 w-full md:w-2/3">
+<span class="material-symbols-outlined text-primary mb-sm text-4xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">AI Calorie Prediction</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md">Simply describe or snap a photo of your meal. Our advanced AI accurately estimates macros and calories instantly, removing the guesswork.</p>
+<button class="text-primary font-label-md text-label-md flex items-center gap-1 group-hover:gap-2 transition-all">Try it out <span class="material-symbols-outlined text-sm">arrow_forward</span></button>
+</div>
+<div class="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-surface-container to-transparent hidden md:block"></div>
+</div>
+<!-- Hydration Tracker Card -->
+<div class="col-span-1 bg-surface-container-lowest rounded-2xl p-md ambient-shadow-sm flex flex-col items-center justify-center text-center border border-outline-variant/30">
+<div class="relative w-32 h-32 mb-sm">
+<!-- Simulated circular progress -->
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="40" stroke="#e5eeff" stroke-width="8"></circle>
+<circle cx="50" cy="50" fill="none" r="40" stroke="#0058be" stroke-dasharray="251.2" stroke-dashoffset="62.8" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">water_drop</span>
+<span class="font-label-md text-label-md text-on-surface">1.5L / 2L</span>
+</div>
+</div>
+<h3 class="font-headline-md text-body-lg font-bold text-on-surface mb-1">Hydration Tracking</h3>
+<p class="font-body-md text-caption text-on-surface-variant">Stay refreshed throughout your day.</p>
+</div>
+<!-- Local Meals Card -->
+<div class="col-span-1 bg-surface-container-lowest rounded-2xl p-md ambient-shadow-sm border border-outline-variant/30 flex flex-col">
+<div class="h-40 w-full rounded-xl mb-sm bg-surface-container overflow-hidden">
+<img alt="Bowl of lentils" class="object-cover w-full h-full" data-alt="A warm, inviting close-up shot of traditional daal chawal (lentil curry and rice) served in a rustic ceramic bowl. The scene is brightly lit with a clean, modern aesthetic, highlighting the rich yellow tones of the lentils against the white rice. The mood is comforting and approachable, perfect for a budget-friendly vitality meal context." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBN89I05pj-gdTwIRHbpxVB2CK3ZfwAoBCmWGZgKpJCL_et2WgFRdsCtWrIDOLNkny2WmDxW9thTCH_sSryhjl5h07pYsIedhEqMIb4QcOTMr3Ty5R3mtfw5-NU0eLM7aob7Sy10MxmDxszKHxgLHlduuJA1b773eqcSQ5cJc33H8DbdUaYO3b-7uvO3RriDCKNYXj5ROdzIEUjku5-UlIP49WL1kcjcc-JyuMzuwOmYYF8yYU-fy4phSo99SBOd3OSvpYWQiAonI8o"/>
+</div>
+<h3 class="font-headline-md text-body-lg font-bold text-on-surface mb-2">Budget-Friendly Local Meals</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-sm flex-grow">Tailored plans featuring accessible, nourishing staples like daal chawal and morning oats.</p>
+<div class="flex flex-wrap gap-2 mt-auto">
+<span class="bg-surface-dim text-on-surface-variant font-caption text-caption px-3 py-1 rounded-full">Low Cost</span>
+<span class="bg-surface-dim text-on-surface-variant font-caption text-caption px-3 py-1 rounded-full">High Protein</span>
+</div>
+</div>
+<!-- Personalized Plans Card -->
+<div class="col-span-1 md:col-span-2 bg-primary-container text-on-primary-container rounded-2xl p-md ambient-shadow-sm flex flex-col md:flex-row items-center gap-md border border-outline-variant/30">
+<div class="flex-1">
+<span class="material-symbols-outlined mb-sm text-4xl" style="font-variation-settings: 'FILL' 1;">restaurant_menu</span>
+<h3 class="font-headline-md text-headline-md mb-2">Personalized Meal Plans</h3>
+<p class="font-body-md text-body-md opacity-90 mb-md">Whether you're a student in Lahore or starting the gym in Karachi, get daily recommendations that fit your unique macro needs and lifestyle constraints.</p>
+<button class="bg-on-primary text-primary font-label-md text-label-md px-5 py-2 rounded-lg hover:opacity-90 transition-opacity active:scale-95 duration-200">View Sample Plans</button>
+</div>
+<div class="flex-1 w-full flex justify-end">
+<div class="bg-surface-bright/20 backdrop-blur-md rounded-xl p-sm w-full max-w-sm border border-on-primary-container/20">
+<div class="flex justify-between items-center mb-xs">
+<span class="font-label-md text-label-md">Today's Dinner</span>
+<span class="font-caption text-caption bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded">450 kcal</span>
+</div>
+<p class="font-body-md text-body-md font-medium mb-1">Grilled Chicken Wrap</p>
+<div class="flex gap-2">
+<span class="text-xs bg-surface-bright/30 px-2 py-0.5 rounded">30g P</span>
+<span class="text-xs bg-surface-bright/30 px-2 py-0.5 rounded">40g C</span>
+<span class="text-xs bg-surface-bright/30 px-2 py-0.5 rounded">12g F</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Testimonials Section -->
+<section class="mb-xl py-lg">
+<div class="text-center mb-lg">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-xs">Real People, Real Vitality</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- Testimonial 1 -->
+<div class="bg-surface-container-lowest p-md rounded-2xl ambient-shadow-sm border border-outline-variant/20 flex flex-col">
+<div class="flex items-center gap-xs mb-sm">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed font-label-md">S</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Sara A.</p>
+<p class="font-caption text-caption text-on-surface-variant">University Student</p>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant italic">"NutriMate helped me realize that eating healthy doesn't mean expensive salads. It showed me how to balance my daily canteen meals and stay within budget."</p>
+</div>
+<!-- Testimonial 2 -->
+<div class="bg-surface-container-lowest p-md rounded-2xl ambient-shadow-sm border border-outline-variant/20 flex flex-col">
+<div class="flex items-center gap-xs mb-sm">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed font-label-md">A</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Ali K.</p>
+<p class="font-caption text-caption text-on-surface-variant">Gym Beginner</p>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant italic">"The AI calorie predictor is magic. I just snap a pic of my pre-workout meal and it instantly logs my protein. It took all the stress out of tracking."</p>
+</div>
+<!-- Testimonial 3 -->
+<div class="bg-surface-container-lowest p-md rounded-2xl ambient-shadow-sm border border-outline-variant/20 flex flex-col">
+<div class="flex items-center gap-xs mb-sm">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-label-md">F</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Fatima R.</p>
+<p class="font-caption text-caption text-on-surface-variant">Working Professional</p>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant italic">"Between meetings, the hydration reminders and quick prep meal plans keep my energy levels steady all day. It feels like having a personal nutritionist."</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-inverse-surface text-inverse-on-surface py-lg mt-auto">
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-lg grid grid-cols-1 md:grid-cols-4 gap-lg">
+<div class="col-span-1 md:col-span-1">
+<div class="font-display-lg text-headline-md text-primary-fixed mb-sm tracking-tight">NutriMate</div>
+<p class="font-body-md text-caption text-surface-variant opacity-80">Guided Vitality for everyday life. Simplifying nutrition tracking with AI.</p>
+</div>
+<div class="col-span-1">
+<h4 class="font-label-md text-label-md text-on-secondary mb-xs">Product</h4>
+<ul class="space-y-2">
+<li><a class="font-body-md text-caption text-surface-variant hover:text-white transition-colors" href="#">Features</a></li>
+<li><a class="font-body-md text-caption text-surface-variant hover:text-white transition-colors" href="#">Meal Plans</a></li>
+<li><a class="font-body-md text-caption text-surface-variant hover:text-white transition-colors" href="#">Pricing</a></li>
+</ul>
+</div>
+<div class="col-span-1">
+<h4 class="font-label-md text-label-md text-on-secondary mb-xs">Company</h4>
+<ul class="space-y-2">
+<li><a class="font-body-md text-caption text-surface-variant hover:text-white transition-colors" href="#">About Us</a></li>
+<li><a class="font-body-md text-caption text-surface-variant hover:text-white transition-colors" href="#">Careers</a></li>
+<li><a class="font-body-md text-caption text-surface-variant hover:text-white transition-colors" href="#">Contact</a></li>
+</ul>
+</div>
+<div class="col-span-1">
+<h4 class="font-label-md text-label-md text-on-secondary mb-xs">Legal</h4>
+<ul class="space-y-2">
+<li><a class="font-body-md text-caption text-surface-variant hover:text-white transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="font-body-md text-caption text-surface-variant hover:text-white transition-colors" href="#">Terms of Service</a></li>
+</ul>
+</div>
+</div>
+<div class="max-w-container-max mx-auto px-margin-mobile md:px-lg mt-lg pt-sm border-t border-outline/30 text-center">
+<p class="font-caption text-caption text-surface-variant opacity-60">© 2024 NutriMate AI. All rights reserved.</p>
+</div>
+</footer>
+</body></html>

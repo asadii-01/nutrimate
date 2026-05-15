@@ -1,0 +1,16 @@
+node_modules
+dist
+build
+.pnpm-store
+pnpm-lock.yaml
+services/ml/**/*.py
+services/ml/**/*.ipynb
+services/ml/models
+designs/**/code.html
+
+# Hand-authored docs — leave formatting to the author.
+PRD.md
+TRD.md
+design.md
+project-description.md
+designs/nutrimate_design_system/DESIGN.md

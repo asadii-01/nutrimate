@@ -1,0 +1,29 @@
+# NutriMate: Smart Nutrition for Real Life
+## Target Audience
+- University students in Pakistan (hostel-friendly meals).
+- Gym beginners (macro tracking, goal setting).
+- Budget-conscious users (low-cost meal options).
+
+## Visual Identity
+- Theme: Light, airy, healthy.
+- Primary Color: #16A34A (Leaf Green).
+- Secondary: #F97316 (Calorie Orange), #3B82F6 (Hydration Blue).
+- Corner Radius: 16px.
+
+## Screen List
+1. Landing Page (Public)
+2. Login & Register (Split layout)
+3. Profile Setup (4-step wizard)
+4. Dashboard (Personalized home)
+5. Meal Recommendations (Browse & Swap)
+6. Nutrition Search (Food database)
+7. Progress Analytics (Charts & Insights)
+8. Profile / Settings (User management)
+9. States (Empty, Loading, Error)
+
+## Reusable Components
+- Top Navbar & Bottom Tab Bar
+- Meal Card (kcal, macros, hostel-friendly tags)
+- Progress Rings (calories, water)
+- Stat Cards with deltas
+- Detailed Drawers/Modals

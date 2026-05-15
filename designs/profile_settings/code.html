@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NutriMate - Profile &amp; Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#f8f9ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "primary": "#006b2c",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#f7fff2",
+                        "on-primary-fixed": "#002109",
+                        "tertiary-fixed": "#d8e2ff",
+                        "primary-fixed": "#7ffc97",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#00873a",
+                        "tertiary-fixed-dim": "#adc6ff",
+                        "on-tertiary-fixed": "#001a42",
+                        "surface-tint": "#006e2d",
+                        "secondary-fixed": "#ffdbca",
+                        "on-error-container": "#93000a",
+                        "surface-variant": "#d3e4fe",
+                        "on-error": "#ffffff",
+                        "secondary-container": "#fd761a",
+                        "outline-variant": "#bdcaba",
+                        "inverse-primary": "#62df7d",
+                        "on-background": "#0b1c30",
+                        "secondary-fixed-dim": "#ffb690",
+                        "tertiary": "#0058be",
+                        "inverse-surface": "#213145",
+                        "on-surface-variant": "#3e4a3d",
+                        "outline": "#6e7b6c",
+                        "on-surface": "#0b1c30",
+                        "on-tertiary-fixed-variant": "#004395",
+                        "secondary": "#9d4300",
+                        "surface-container": "#e5eeff",
+                        "on-secondary-fixed-variant": "#783200",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#eff4ff",
+                        "surface-dim": "#cbdbf5",
+                        "background": "#f8f9ff",
+                        "on-secondary-container": "#5c2400",
+                        "surface-container-highest": "#d3e4fe",
+                        "primary-fixed-dim": "#62df7d",
+                        "surface": "#f8f9ff",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-container": "#fefcff",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#005320",
+                        "on-secondary-fixed": "#341100",
+                        "surface-container-high": "#dce9ff",
+                        "tertiary-container": "#2170e4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "8px",
+                        "gutter": "16px",
+                        "sm": "16px",
+                        "margin-mobile": "20px",
+                        "container-max": "1200px",
+                        "lg": "32px",
+                        "base": "4px",
+                        "xl": "48px",
+                        "md": "24px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "caption": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "caption": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface-bright text-on-surface font-body-md min-h-screen antialiased flex flex-col md:flex-row pb-24 md:pb-0">
+<!-- SideNavBar (Desktop Only) -->
+<nav class="h-screen w-64 hidden md:flex flex-col border-r border-outline-variant bg-surface-bright shadow-[0px_4px_20px_rgba(15,23,42,0.05)] fixed left-0 top-0 py-lg px-md z-40">
+<div class="mb-xl">
+<h1 class="font-display-lg text-headline-md text-primary">NutriMate AI</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Guided Vitality</p>
+</div>
+<button class="bg-primary text-on-primary rounded-xl py-sm px-md mb-xl flex items-center justify-center gap-xs hover:bg-surface-container transition-all active:translate-x-1 duration-200">
+<span class="material-symbols-outlined" data-icon="add" style="font-variation-settings: 'FILL' 1;">add</span>
+<span class="font-label-md text-label-md">Add New Meal</span>
+</button>
+<ul class="flex flex-col gap-xs flex-grow">
+<li>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="flatware">flatware</span>
+<span class="font-label-md text-label-md">Meal Plans</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="storefront">storefront</span>
+<span class="font-label-md text-label-md">Marketplace</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="show_chart">show_chart</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings_suggest" style="font-variation-settings: 'FILL' 1;">settings_suggest</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</li>
+</ul>
+</nav>
+<!-- TopAppBar (Mobile/Tablet Default Canvas Header) -->
+<header class="fixed top-0 w-full z-50 bg-surface-bright shadow-[0px_4px_20px_rgba(15,23,42,0.05)] md:hidden">
+<div class="flex justify-between items-center px-margin-mobile h-16 w-full">
+<h1 class="font-display-lg text-headline-md text-primary">NutriMate</h1>
+<div class="flex gap-sm">
+<button class="text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full p-2 active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-primary font-bold hover:bg-surface-container-low transition-colors rounded-full p-2 active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="settings" style="font-variation-settings: 'FILL' 1;">settings</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-grow md:ml-64 pt-20 md:pt-lg px-margin-mobile md:px-lg max-w-container-max mx-auto w-full">
+<!-- Header / Profile Summary -->
+<section class="mb-lg">
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(15,23,42,0.05)] flex items-center justify-between border border-outline-variant">
+<div class="flex items-center gap-md">
+<div class="w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden border-2 border-primary-container">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A close up portrait photo of a young pakistani woman with a bright, welcoming smile. She is wearing a modern green athletic top. The lighting is soft and natural, emphasizing a healthy, vibrant lifestyle consistent with a modern fitness app. The background is a slightly out of focus bright, minimalist interior." src="https://lh3.googleusercontent.com/aida-public/AB6AXuARcDY0CFqqffIcuIe1-wu5SFVsJQ3PuGs_cXQDjeY1wgCN_cPwOpRlC79tekByxLhileLycz6PLC5z1_1ChwRQIsf4N-jv3C_jK9tjvHsNU36OcAY0aQCd5NrfW_evBXuR8YFqi5jpr7naMGpRDwhjns-HaGiHn_2guD5dFDweYFFj2rR0xvzjZAU6fn8eBbxCxP0oihDgIOVEMh2QvMsCV_BfK_dwmuu7JfLEPf-ylvk70KEy4weU557cXadnsqQCuNURW01itA30"/>
+</div>
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Ayesha K.</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Guided Vitality Starter</p>
+</div>
+</div>
+<button class="bg-surface-container-low text-primary px-sm py-xs rounded-lg font-label-md text-label-md flex items-center gap-xs hover:bg-surface-container transition-colors border border-outline-variant">
+<span class="material-symbols-outlined text-[18px]" data-icon="edit">edit</span>
+                    Edit
+                </button>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-lg">
+<!-- Column 1: Profile & Dietary -->
+<div class="space-y-lg">
+<!-- Profile Info Group -->
+<section class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(15,23,42,0.05)] border border-outline-variant">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-sm flex items-center gap-xs border-b border-outline-variant pb-xs">
+<span class="material-symbols-outlined text-primary" data-icon="person">person</span>
+                        Profile Info
+                    </h3>
+<div class="space-y-md">
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Age</label>
+<div class="relative">
+<input class="w-full bg-surface-bright border border-outline-variant rounded-lg px-sm py-sm text-on-surface font-body-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" type="number" value="26"/>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-sm">
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Height (cm)</label>
+<input class="w-full bg-surface-bright border border-outline-variant rounded-lg px-sm py-sm text-on-surface font-body-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" type="number" value="165"/>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Weight (kg)</label>
+<input class="w-full bg-surface-bright border border-outline-variant rounded-lg px-sm py-sm text-on-surface font-body-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" type="number" value="62"/>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Primary Goal</label>
+<select class="w-full bg-surface-bright border border-outline-variant rounded-lg px-sm py-sm text-on-surface font-body-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors appearance-none">
+<option>Maintain Weight</option>
+<option>Lose Weight</option>
+<option selected="">Build Muscle</option>
+<option>Improve Health</option>
+</select>
+</div>
+</div>
+</section>
+<!-- Dietary Preferences Group -->
+<section class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(15,23,42,0.05)] border border-outline-variant">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-sm flex items-center gap-xs border-b border-outline-variant pb-xs">
+<span class="material-symbols-outlined text-secondary-container" data-icon="restaurant">restaurant</span>
+                        Dietary Preferences
+                    </h3>
+<div class="space-y-md">
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Diet Type</label>
+<select class="w-full bg-surface-bright border border-outline-variant rounded-lg px-sm py-sm text-on-surface font-body-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors appearance-none">
+<option>Standard</option>
+<option selected="">Vegetarian</option>
+<option>Vegan</option>
+<option>Keto</option>
+</select>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Budget Tier</label>
+<div class="flex gap-sm">
+<label class="flex-1 cursor-pointer">
+<input checked="" class="peer sr-only" name="budget" type="radio"/>
+<div class="text-center py-xs border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant peer-checked:bg-primary-container peer-checked:text-on-primary-container peer-checked:border-primary-container transition-colors">
+                                        Economy
+                                    </div>
+</label>
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="budget" type="radio"/>
+<div class="text-center py-xs border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant peer-checked:bg-primary-container peer-checked:text-on-primary-container peer-checked:border-primary-container transition-colors">
+                                        Standard
+                                    </div>
+</label>
+<label class="flex-1 cursor-pointer">
+<input class="peer sr-only" name="budget" type="radio"/>
+<div class="text-center py-xs border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface-variant peer-checked:bg-primary-container peer-checked:text-on-primary-container peer-checked:border-primary-container transition-colors">
+                                        Premium
+                                    </div>
+</label>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Column 2: App Settings & Account -->
+<div class="space-y-lg">
+<!-- App Settings Group -->
+<section class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(15,23,42,0.05)] border border-outline-variant">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-sm flex items-center gap-xs border-b border-outline-variant pb-xs">
+<span class="material-symbols-outlined text-tertiary-container" data-icon="tune">tune</span>
+                        App Settings
+                    </h3>
+<ul class="space-y-sm">
+<li class="flex items-center justify-between py-xs">
+<div>
+<p class="font-body-md text-body-md text-on-surface font-medium">Push Notifications</p>
+<p class="font-caption text-caption text-on-surface-variant">Daily tips and meal suggestions</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-outline-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</li>
+<li class="flex items-center justify-between py-xs">
+<div>
+<p class="font-body-md text-body-md text-on-surface font-medium">Water Reminders</p>
+<p class="font-caption text-caption text-on-surface-variant">Hydration tracking alerts</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-outline-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</li>
+<li class="flex items-center justify-between py-xs">
+<div>
+<p class="font-body-md text-body-md text-on-surface font-medium">Dark Mode</p>
+<p class="font-caption text-caption text-on-surface-variant">Switch app theme</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-outline-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</li>
+</ul>
+</section>
+<!-- Account Actions Group -->
+<section class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(15,23,42,0.05)] border border-outline-variant">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-sm flex items-center gap-xs border-b border-outline-variant pb-xs">
+<span class="material-symbols-outlined text-error" data-icon="manage_accounts">manage_accounts</span>
+                        Account
+                    </h3>
+<div class="space-y-sm pt-xs">
+<button class="w-full text-left py-sm px-sm rounded-lg hover:bg-surface-container-low transition-colors font-body-md text-body-md text-on-surface flex items-center justify-between border border-transparent hover:border-outline-variant">
+<span>Change Password</span>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="w-full text-left py-sm px-sm rounded-lg hover:bg-error-container transition-colors font-body-md text-body-md text-error flex items-center justify-between border border-transparent">
+<span class="font-medium">Logout</span>
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+</button>
+</div>
+</section>
+<div class="pt-sm flex justify-end">
+<button class="bg-primary text-on-primary rounded-xl py-sm px-lg font-label-md text-label-md active:scale-95 transition-transform duration-150 shadow-[0px_4px_20px_rgba(15,23,42,0.05)]">
+                        Save Changes
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container-lowest shadow-[0px_-10px_25px_rgba(15,23,42,0.1)] md:hidden">
+<div class="flex justify-around items-center h-20 px-4 pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md mt-1 text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="restaurant_menu">restaurant_menu</span>
+<span class="font-label-md text-label-md mt-1 text-[10px]">Meals</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="font-label-md text-label-md mt-1 text-[10px]">Search</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="font-label-md text-label-md mt-1 text-[10px]">Progress</span>
+</a>
+<!-- Settings is not in BottomNavBar tabs, usually accessed via TopAppBar or is a separate destination. 
+                 Since this is the settings page, we highlight none of the bottom tabs specifically if none match perfectly,
+                 or we could assume 'Progress' if it was a generic dashboard, but leaving all inactive per standard mobile UX for nested settings -->
+</div>
+</nav>
+</body></html>

@@ -1,0 +1,15 @@
+{
+  "name": "@nutrimate/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "echo 'web dev: implemented in Phase 4' && exit 0",
+    "build": "echo 'web build: implemented in Phase 4' && exit 0",
+    "typecheck": "echo 'web typecheck: implemented in Phase 4' && exit 0",
+    "preview": "echo 'web preview: implemented in Phase 4' && exit 0"
+  },
+  "dependencies": {
+    "@nutrimate/shared-types": "workspace:*"
+  }
+}

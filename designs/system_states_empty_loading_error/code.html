@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>States - NutriMate AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-bright": "#f8f9ff",
+                      "inverse-on-surface": "#eaf1ff",
+                      "primary": "#006b2c",
+                      "error": "#ba1a1a",
+                      "on-primary-container": "#f7fff2",
+                      "on-primary-fixed": "#002109",
+                      "tertiary-fixed": "#d8e2ff",
+                      "primary-fixed": "#7ffc97",
+                      "on-secondary": "#ffffff",
+                      "primary-container": "#00873a",
+                      "tertiary-fixed-dim": "#adc6ff",
+                      "on-tertiary-fixed": "#001a42",
+                      "surface-tint": "#006e2d",
+                      "secondary-fixed": "#ffdbca",
+                      "on-error-container": "#93000a",
+                      "surface-variant": "#d3e4fe",
+                      "on-error": "#ffffff",
+                      "secondary-container": "#fd761a",
+                      "outline-variant": "#bdcaba",
+                      "inverse-primary": "#62df7d",
+                      "on-background": "#0b1c30",
+                      "secondary-fixed-dim": "#ffb690",
+                      "tertiary": "#0058be",
+                      "inverse-surface": "#213145",
+                      "on-surface-variant": "#3e4a3d",
+                      "outline": "#6e7b6c",
+                      "on-surface": "#0b1c30",
+                      "on-tertiary-fixed-variant": "#004395",
+                      "secondary": "#9d4300",
+                      "surface-container": "#e5eeff",
+                      "on-secondary-fixed-variant": "#783200",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container-low": "#eff4ff",
+                      "surface-dim": "#cbdbf5",
+                      "background": "#f8f9ff",
+                      "on-secondary-container": "#5c2400",
+                      "surface-container-highest": "#d3e4fe",
+                      "primary-fixed-dim": "#62df7d",
+                      "surface": "#f8f9ff",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-container": "#fefcff",
+                      "error-container": "#ffdad6",
+                      "on-primary": "#ffffff",
+                      "on-primary-fixed-variant": "#005320",
+                      "on-secondary-fixed": "#341100",
+                      "surface-container-high": "#dce9ff",
+                      "tertiary-container": "#2170e4"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "8px",
+                      "gutter": "16px",
+                      "sm": "16px",
+                      "margin-mobile": "20px",
+                      "container-max": "1200px",
+                      "lg": "32px",
+                      "base": "4px",
+                      "xl": "48px",
+                      "md": "24px"
+              },
+              "fontFamily": {
+                      "body-md": ["Plus Jakarta Sans"],
+                      "label-md": ["Plus Jakarta Sans"],
+                      "caption": ["Plus Jakarta Sans"],
+                      "display-lg": ["Plus Jakarta Sans"],
+                      "headline-lg": ["Plus Jakarta Sans"],
+                      "headline-lg-mobile": ["Plus Jakarta Sans"],
+                      "body-lg": ["Plus Jakarta Sans"],
+                      "headline-md": ["Plus Jakarta Sans"]
+              },
+              "fontSize": {
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "caption": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+              }
+            }
+          }
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+      </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md text-body-md antialiased pt-16 pb-24 md:pb-0 md:pl-64">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface-bright dark:bg-surface-dim shadow-[0px_4px_20px_rgba(15,23,42,0.05)] md:pl-64 flex justify-between items-center px-margin-mobile md:px-lg h-16 w-full">
+<div class="font-display-lg text-headline-md text-primary dark:text-primary-fixed">NutriMate</div>
+<div class="flex items-center gap-sm">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low transition-colors rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<img alt="User Profile" class="w-8 h-8 rounded-full ml-2 object-cover border-2 border-surface-container-highest" data-alt="A close up headshot of a smiling young woman with dark hair, lit by soft natural light. The mood is friendly and approachable. The image is set against a bright, modern, light-mode background with high key lighting, matching a clean UI aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzcKbvmiOcGIsm40kIn6vWuWm-blIDlPviO_P-nxXoWt5c0QnvX3Ai9VJrGEpsqj-d-F5nakjdIu6knCGsYrCsjJoWGkRF_FXCtDcWwviOvJfHuCuunKLxhCG2lmxRtOwAohL_bS_qTS2xsyYso4eWo1Vlk8QVid3ctDWC7fHSX0kXR8dI4j5pxhS2uhn_YZJgnhSnISdo6rYt0ROfrZQpleghrpGK7Z7xA6tPNQi3QCMqOxtuElgz3ID0hkvPm3UhbqeQOgjWoc8O"/>
+</div>
+</header>
+<!-- SideNavBar (Desktop) -->
+<nav class="h-screen w-64 hidden md:flex flex-col border-r border-outline-variant bg-surface-bright dark:bg-surface-dim fixed left-0 top-0 h-full py-lg px-md z-40">
+<div class="mb-xl flex items-center gap-sm">
+<div class="w-10 h-10 bg-primary-container rounded-lg flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined">nutrition</span>
+</div>
+<div>
+<h2 class="font-label-md text-label-md text-on-surface">NutriMate AI</h2>
+<p class="font-caption text-caption text-on-surface-variant">Guided Vitality</p>
+</div>
+</div>
+<ul class="flex flex-col gap-xs flex-grow">
+<li>
+<a class="flex items-center gap-sm px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="flatware">flatware</span>
+<span class="font-label-md text-label-md">Meal Plans</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="storefront">storefront</span>
+<span class="font-label-md text-label-md">Marketplace</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="show_chart">show_chart</span>
+<span class="font-label-md text-label-md">Analytics</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-sm px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings_suggest">settings_suggest</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</li>
+</ul>
+<button class="mt-auto w-full bg-primary text-on-primary font-label-md text-label-md py-3 rounded-xl hover:bg-surface-tint active:scale-95 transition-all shadow-[0px_4px_20px_rgba(15,23,42,0.05)]">
+            Add New Meal
+        </button>
+</nav>
+<!-- Main Canvas -->
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-lg py-lg space-y-xl">
+<div class="mb-lg">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2">System States</h1>
+<p class="text-on-surface-variant font-body-lg text-body-lg">Examples of empty, loading, and error states for NutriMate.</p>
+</div>
+<!-- 1. Empty State -->
+<section>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-sm">Empty State</h2>
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(15,23,42,0.05)] p-xl flex flex-col items-center justify-center text-center min-h-[400px] border border-outline-variant/30">
+<div class="w-48 h-48 mb-lg bg-surface-container-high rounded-full flex items-center justify-center relative overflow-hidden">
+<!-- Placeholder for friendly illustration, using an icon cluster for now to stay within constraints without external SVGs -->
+<div class="absolute inset-0 bg-gradient-to-tr from-primary-container/20 to-surface-bright"></div>
+<span class="material-symbols-outlined text-[80px] text-primary" data-weight="fill" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-xs">No meals logged yet</h3>
+<p class="text-on-surface-variant max-w-md mx-auto mb-lg">Start tracking your nutrition to see personalized insights and recommendations tailored to your goals.</p>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-lg py-3 rounded-xl hover:bg-surface-tint active:scale-95 transition-all shadow-[0px_4px_20px_rgba(15,23,42,0.05)] flex items-center gap-xs">
+<span class="material-symbols-outlined">add</span>
+                    Log your first meal
+                </button>
+</div>
+</section>
+<!-- 2. Loading State -->
+<section>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-sm">Loading State</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Skeleton Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(15,23,42,0.05)] p-4 border border-outline-variant/30 animate-pulse">
+<div class="w-full h-40 bg-surface-container-high rounded-lg mb-4"></div>
+<div class="h-6 bg-surface-container-high rounded w-3/4 mb-2"></div>
+<div class="h-4 bg-surface-container-high rounded w-1/2 mb-4"></div>
+<div class="flex gap-2">
+<div class="h-6 w-16 bg-surface-container-high rounded-full"></div>
+<div class="h-6 w-16 bg-surface-container-high rounded-full"></div>
+</div>
+</div>
+<!-- Skeleton Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(15,23,42,0.05)] p-4 border border-outline-variant/30 animate-pulse">
+<div class="w-full h-40 bg-surface-container-high rounded-lg mb-4"></div>
+<div class="h-6 bg-surface-container-high rounded w-2/3 mb-2"></div>
+<div class="h-4 bg-surface-container-high rounded w-1/3 mb-4"></div>
+<div class="flex gap-2">
+<div class="h-6 w-16 bg-surface-container-high rounded-full"></div>
+<div class="h-6 w-16 bg-surface-container-high rounded-full"></div>
+</div>
+</div>
+<!-- Skeleton Card 3 (Hidden on mobile for better demo flow) -->
+<div class="hidden md:block bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(15,23,42,0.05)] p-4 border border-outline-variant/30 animate-pulse">
+<div class="w-full h-40 bg-surface-container-high rounded-lg mb-4"></div>
+<div class="h-6 bg-surface-container-high rounded w-4/5 mb-2"></div>
+<div class="h-4 bg-surface-container-high rounded w-1/2 mb-4"></div>
+<div class="flex gap-2">
+<div class="h-6 w-16 bg-surface-container-high rounded-full"></div>
+<div class="h-6 w-16 bg-surface-container-high rounded-full"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. Error State -->
+<section>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-sm">Error State</h2>
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(15,23,42,0.05)] p-xl flex flex-col items-center justify-center text-center min-h-[400px] border border-error-container">
+<div class="w-48 h-48 mb-lg bg-error-container rounded-full flex items-center justify-center relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-error/10 to-transparent"></div>
+<span class="material-symbols-outlined text-[80px] text-error" data-weight="fill" style="font-variation-settings: 'FILL' 1;">wifi_off</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-xs">Oops! Connection lost</h3>
+<p class="text-on-surface-variant max-w-md mx-auto mb-lg">We couldn't connect to the server. Please check your internet connection and try again.</p>
+<div class="flex gap-sm">
+<button class="bg-surface-container-low text-primary font-label-md text-label-md px-lg py-3 rounded-xl hover:bg-surface-container transition-all active:scale-95">
+                        Try Again
+                    </button>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-lg py-3 rounded-xl hover:bg-surface-tint active:scale-95 transition-all shadow-[0px_4px_20px_rgba(15,23,42,0.05)]">
+                        Show offline plan
+                    </button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container-lowest dark:bg-inverse-surface shadow-[0px_-4px_20px_rgba(15,23,42,0.05)] shadow-[0px_-10px_25px_rgba(15,23,42,0.1)] flex justify-around items-center h-20 px-4 pb-safe">
+<button class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary active:scale-90 transition-transform duration-150">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md mt-1 text-[10px]">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary active:scale-90 transition-transform duration-150">
+<span class="material-symbols-outlined" data-icon="restaurant_menu">restaurant_menu</span>
+<span class="font-label-md text-label-md mt-1 text-[10px]">Meals</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary active:scale-90 transition-transform duration-150">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="font-label-md text-label-md mt-1 text-[10px]">Search</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary active:scale-90 transition-transform duration-150">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="font-label-md text-label-md mt-1 text-[10px]">Progress</span>
+</button>
+</nav>
+</body></html>
