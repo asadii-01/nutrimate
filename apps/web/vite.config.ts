@@ -17,4 +17,16 @@ export default defineConfig({
   preview: {
     port: 4173,
   },
+  build: {
+    // Split heavy, rarely-changing vendor code (Recharts pulls in d3) into its
+    // own chunk so the app bundle stays small and cacheable.
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          charts: ["recharts"],
+          vendor: ["react", "react-dom", "react-router-dom", "@tanstack/react-query", "axios"],
+        },
+      },
+    },
+  },
 });
