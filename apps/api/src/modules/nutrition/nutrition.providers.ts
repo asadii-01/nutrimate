@@ -8,6 +8,8 @@ export interface NutritionItem {
   kcal: number;
   macros: { protein: number; carbs: number; fats: number } | null;
   servingSize: string | null;
+  /** Provider thumbnail URL; `null` for sources without imagery (catalog). */
+  image: string | null;
   source: "spoonacular" | "edamam" | "catalog";
 }
 
@@ -34,50 +36,57 @@ function num(value: unknown): number {
 
 // --- Spoonacular ------------------------------------------------------------
 
-interface SpoonSearchResponse {
-  results?: { id: number; name: string }[];
-}
-interface SpoonInfoResponse {
-  id: number;
+// Spoonacular's recipe API: `complexSearch` (with `addRecipeNutrition` so the
+// listing carries calories/macros/image), then `{id}/information` for detail.
+// Docs: https://spoonacular.com/food-api/docs
+interface SpoonNutrient {
   name: string;
-  nutrition?: { nutrients?: { name: string; amount: number; unit: string }[] };
+  amount: number;
+  unit: string;
+}
+interface SpoonRecipe {
+  id: number;
+  title: string;
+  image?: string;
+  nutrition?: { nutrients?: SpoonNutrient[] };
+}
+interface SpoonSearchResponse {
+  results?: SpoonRecipe[];
+}
+
+/** Pull kcal + macros out of a Spoonacular `nutrients` array. */
+function spoonNutrition(nutrients: SpoonNutrient[]): Pick<NutritionItem, "kcal" | "macros"> {
+  const pick = (name: string) =>
+    num(nutrients.find((n) => n.name.toLowerCase() === name)?.amount);
+  return {
+    kcal: pick("calories"),
+    macros: { protein: pick("protein"), carbs: pick("carbohydrates"), fats: pick("fat") },
+  };
+}
+
+function spoonRecipeToItem(r: SpoonRecipe): NutritionItem {
+  return {
+    id: `sp:${r.id}`,
+    name: r.title,
+    ...spoonNutrition(r.nutrition?.nutrients ?? []),
+    servingSize: "1 serving",
+    image: r.image ?? null,
+    source: "spoonacular",
+  };
 }
 
 function spoonacularProvider(apiKey: string): NutritionProvider {
-  const base = "https://api.spoonacular.com/food/ingredients";
+  const base = "https://api.spoonacular.com/recipes";
   return {
     name: "spoonacular",
     async search(query) {
-      const url = `${base}/search?query=${encodeURIComponent(query)}&number=20&apiKey=${apiKey}`;
+      const url = `${base}/complexSearch?query=${encodeURIComponent(query)}&number=20&addRecipeNutrition=true&apiKey=${apiKey}`;
       const data = await getJson<SpoonSearchResponse>(url);
-      // Search results carry no nutrition — kcal/macros are filled on detail.
-      return (data.results ?? []).map((r) => ({
-        id: `sp:${r.id}`,
-        name: r.name,
-        kcal: 0,
-        macros: null,
-        servingSize: null,
-        source: "spoonacular" as const,
-      }));
+      return (data.results ?? []).map(spoonRecipeToItem);
     },
     async getItem(rawId) {
-      const url = `${base}/${rawId}/information?amount=100&unit=grams&apiKey=${apiKey}`;
-      const data = await getJson<SpoonInfoResponse>(url);
-      const nutrients = data.nutrition?.nutrients ?? [];
-      const pick = (name: string) =>
-        num(nutrients.find((n) => n.name.toLowerCase() === name)?.amount);
-      return {
-        id: `sp:${data.id}`,
-        name: data.name,
-        kcal: pick("calories"),
-        macros: {
-          protein: pick("protein"),
-          carbs: pick("carbohydrates"),
-          fats: pick("fat"),
-        },
-        servingSize: "100 g",
-        source: "spoonacular",
-      };
+      const url = `${base}/${rawId}/information?includeNutrition=true&apiKey=${apiKey}`;
+      return spoonRecipeToItem(await getJson<SpoonRecipe>(url));
     },
   };
 }
@@ -87,6 +96,7 @@ function spoonacularProvider(apiKey: string): NutritionProvider {
 interface EdamamFood {
   foodId: string;
   label: string;
+  image?: string;
   nutrients?: Record<string, number>;
 }
 interface EdamamParserResponse {
@@ -104,6 +114,7 @@ function edamamProvider(appId: string, appKey: string): NutritionProvider {
       kcal: num(n.ENERC_KCAL),
       macros: { protein: num(n.PROCNT), carbs: num(n.CHOCDF), fats: num(n.FAT) },
       servingSize: "100 g",
+      image: food.image ?? null,
       source: "edamam",
     };
   };

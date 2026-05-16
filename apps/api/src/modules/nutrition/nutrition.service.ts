@@ -45,6 +45,7 @@ async function searchCatalog(query: string): Promise<NutritionItem[]> {
     kcal: d.kcal,
     macros: { protein: d.macros.protein, carbs: d.macros.carbs, fats: d.macros.fats },
     servingSize: "per serving",
+    image: null,
     source: "catalog" as const,
   }));
 }
@@ -72,8 +73,14 @@ export async function searchNutrition(query: string): Promise<{
     try {
       const items = await provider.search(normalized);
       await writeCache(cacheKey, { source: provider.name, items }, provider.name);
-      // Cache each item so the detail view resolves without a second API call.
-      await Promise.all(items.map((it) => writeCache(`item:${it.id}`, it, provider.name)));
+      // Pre-cache items that carry nutrition so the detail view resolves
+      // without a second API call. Items missing macros are skipped so they
+      // don't shadow a later `getItem` detail lookup.
+      await Promise.all(
+        items
+          .filter((it) => it.macros !== null)
+          .map((it) => writeCache(`item:${it.id}`, it, provider.name)),
+      );
       return { query: normalized, cached: false, source: provider.name, items };
     } catch (err) {
       logger.warn({ err }, "nutrition provider search failed — using food_catalog");
@@ -120,6 +127,7 @@ export async function getNutritionItem(id: string): Promise<NutritionItem> {
     kcal: doc.kcal,
     macros: { protein: doc.macros.protein, carbs: doc.macros.carbs, fats: doc.macros.fats },
     servingSize: "per serving",
+    image: null,
     source: "catalog",
   };
 }

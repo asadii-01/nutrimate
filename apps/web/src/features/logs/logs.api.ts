@@ -22,8 +22,13 @@ export interface WaterLogPayload {
   date?: string;
 }
 
-export function getDaySummary(date: string): Promise<DaySummary> {
-  return apiGet<DaySummary>("/logs/day", { params: { date } });
+/** `GET /logs/day` also reports which meal types were logged that day. */
+export interface DaySummaryResult extends DaySummary {
+  loggedMeals?: MealType[];
+}
+
+export function getDaySummary(date: string): Promise<DaySummaryResult> {
+  return apiGet<DaySummaryResult>("/logs/day", { params: { date } });
 }
 
 export function getRange(from: string, to: string): Promise<{ days: DaySummary[] }> {
@@ -31,8 +36,10 @@ export function getRange(from: string, to: string): Promise<{ days: DaySummary[]
 }
 
 /** One day's meal + water totals against the calorie target. */
-export function useDaySummary(date: string = todayIso()): UseQueryResult<DaySummary, ApiClientError> {
-  return useQuery<DaySummary, ApiClientError>({
+export function useDaySummary(
+  date: string = todayIso(),
+): UseQueryResult<DaySummaryResult, ApiClientError> {
+  return useQuery<DaySummaryResult, ApiClientError>({
     queryKey: logKeys.day(date),
     queryFn: () => getDaySummary(date),
     retry: (count, error) => !(error instanceof ApiClientError && error.status === 404) && count < 2,

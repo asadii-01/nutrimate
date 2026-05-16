@@ -2,9 +2,10 @@
 
 | Field          | Value                                                                                            |
 | -------------- | ------------------------------------------------------------------------------------------------ |
-| Last updated   | 2026-05-16 (Phase 5 build)                                                                       |
+| Last updated   | 2026-05-16 (post-Phase-5 fixes — Spoonacular, recommender variety, log UX)                       |
 | Author         | Claude (Opus 4.7) + Asad                                                                         |
-| Current phase  | Phase 5 — complete and verified; Phase 6 (quality gates) is next                                 |
+| Current phase  | Phase 5 complete & verified; Phase 6 descoped; post-Phase-5 fixes ongoing                        |
+| Repo location  | **`/home/asad-tauqeer/develop/ml`** (ext4) — see "Repo location & migration" below               |
 | Companion docs | [`IMPLEMENTATION_PLAN.md`](./IMPLEMENTATION_PLAN.md), [`PRD.md`](./PRD.md), [`TRD.md`](./TRD.md) |
 
 ---
@@ -17,9 +18,41 @@
 - **Phase 3 (API business logic):** complete and verified — profile, predictions, recommendations, logs, nutrition-search wired; food catalog seeded (36 dishes); end-to-end smoke test green against live Mongo + ML.
 - **Phase 4 (frontend foundation):** complete and verified — `pnpm install` succeeded (network back, 2m30s), `typecheck` + `build` green, auth flow (register → login → `/me`) smoke-tested against the live API.
 - **Phase 5 (pages):** **complete and verified.** All 9 screens built — public landing, auth, 4-step profile wizard, dashboard, meal recommendations, nutrition search, progress analytics, settings, plus shared empty/loading/error states. `typecheck` + `lint` (0 problems) + `build` green; full end-to-end smoke test passed against live Mongo + ML + API (auth, profile, predictions, recommendations + swap, logs meal/water/day/range, nutrition search). Web dev server serves `/` and SPA routes.
-- **Phase 6:** not started.
-- **Project is now a git repo** (branch `master`): `git init` run on 2026-05-15. Commits so far — Phases 0–2 (initial), Phase 3, and Phases 4–5 (`0f9977c`, the web frontend). Phase 6 is uncommitted/not started.
-- **Environment quirk that bit us:** the repo lives on an **NTFS partition** mounted via `ntfs3`. Cross-filesystem installs hang for hours. Fixes in place: `.npmrc` (project-local pnpm store) and the Python venv + pip cache pinned to the NTFS partition. Keep both.
+- **Phase 6 (quality gates): descoped** — the user opted out of the heavy
+  automated-test suite; testing is manual against the live local stack.
+- **Post-Phase-5 fixes (2026-05-16):** Spoonacular recipe search wired up with
+  real keys, the meal-plan swap/regenerate "nothing changes" bug fixed, and a
+  "meal eaten" indicator added to the Meals page. See "Post-Phase-5 changes".
+- **Project is a git repo** (branch `master`). Linear history on the ext4 copy:
+  `4de2bf5` Phases 0–2 → `fa85873` Phase 3 → `93b077b` Phase 4 → `721ae59` Phase 5.
+  The post-Phase-5 fixes are uncommitted working-tree changes.
+- **The project now lives on ext4** at `/home/asad-tauqeer/develop/ml`. The old
+  NTFS partition copy is detached and obsolete — all NTFS workaround notes below
+  are **historical only**. See "Repo location & migration".
+
+---
+
+## Repo location & migration (2026-05-16)
+
+The project was developed on an NTFS partition, then moved to ext4 at
+`/home/asad-tauqeer/develop/ml`. A Claude session mistakenly ran Phase 5 in the
+**old NTFS copy**, so the two copies diverged. On 2026-05-16 this was resolved:
+
+- Phase 5's `apps/web` work was synced from the NTFS copy into the ext4 repo and
+  committed as `721ae59` on top of the ext4 Phase 4 commit (`93b077b`). The only
+  Phase 5 code lives in `apps/web`; `apps/api`, `services/ml`, and
+  `packages/shared-types` were byte-identical between the copies.
+- **`.gitignore` bug fixed:** a bare `logs/` rule was silently ignoring
+  `apps/api/src/modules/logs/` (Phase 3) and `apps/web/src/features/logs/`
+  (Phase 5) — 4 source files that had never been committed. The rule is now
+  anchored to `/logs/`; the files are committed in `721ae59`.
+- **All four services now run from ext4** — API :4000, web :5173, ML :8000
+  (its own ext4 venv at `services/ml/.venv`), Mongo :27017 (`~/data/db`).
+- The NTFS copy at `/run/media/.../Development/ML` is detached and can be
+  archived/deleted. The NTFS-specific workarounds below (`.npmrc` store-dir,
+  venv-on-NTFS) **do not apply** to the ext4 repo and are kept only as history.
+
+> **Start new sessions from `/home/asad-tauqeer/develop/ml`.**
 
 ---
 
@@ -73,11 +106,16 @@ nutrimate/                                 (this directory — repo root)
 | 3     | API business logic        | ✅ Done        | Profile/predictions/recommendations/logs/nutrition wired; catalog seeded; e2e smoke test green. |
 | 4     | Frontend foundation       | ✅ Done        | Shell verified — `pnpm install` ran, typecheck/build green, auth smoke test passes.            |
 | 5     | Pages                     | ✅ Done        | All 9 screens built; typecheck/lint/build green; e2e smoke test green against live stack.       |
-| 6     | Quality gates             | ⬜ Not started |                                                                                                 |
+| 6     | Quality gates             | ⬛ Descoped    | User opted out of the automated-test suite; testing is manual against the live stack.           |
 
 ---
 
 ## Environment notes (important)
+
+> **Historical — superseded by the ext4 migration (see "Repo location &
+> migration" above).** The notes in this section describe the old NTFS setup.
+> The current ext4 repo has no cross-filesystem hang; `pnpm install` is fast and
+> the `.npmrc` `store-dir` line is not present in the ext4 copy.
 
 ### NTFS hang on cross-filesystem pnpm installs
 
@@ -251,10 +289,11 @@ services/ml/
   BMI is the engineered 8th feature (TRD §6.1 lists 7 raw fields but specifies `Input(8)`).
   Trained on a Mifflin–St Jeor synthetic grid with 5% Gaussian noise.
   **Test MAE 87.9 kcal** (acceptance ≤ 150), mean deviation −4.6 kcal.
-- **KNN** — `NearestNeighbors(k=5)`, Euclidean on StandardScaler-normalized
+- **KNN** — `NearestNeighbors`, Euclidean on StandardScaler-normalized
   `[age, bmi, activityLevel, goalEnc, dietEnc]`. 52 seed plans across 4 clusters
   (low/high-cal × veg/non-veg), 13 each. Dish catalog bundled into the artifact
-  so the recommender can filter/substitute at inference.
+  so the recommender can filter/substitute at inference. (`k` was 5 at Phase 2;
+  raised to 8 in the post-Phase-5 fixes — see that section.)
 
 ### Behaviors worth knowing
 
@@ -517,6 +556,66 @@ pnpm --filter @nutrimate/web dev                             # web on :5173
 
 ---
 
+## Post-Phase-5 changes (2026-05-16)
+
+Phase 6 was descoped (no automated-test suite); the user runs the stack locally
+and tests manually, conveying fixes one at a time. Three were done this session.
+
+### 1. Spoonacular nutrition search — wired to real keys
+
+- `SPOONACULAR_API_KEY` is now set in the root `.env`; it is read by the **API**
+  (`apps/api/src/config/env.ts`), not the ML service. Restart the API to pick
+  up `.env` changes — `tsx watch` only reloads on `.ts` edits.
+- **Endpoints corrected** (`apps/api/src/modules/nutrition/nutrition.providers.ts`):
+  the provider now hits `…/recipes/complexSearch` and `…/recipes/{id}/information`
+  (was the wrong `…/food/ingredients` surface). Search passes
+  `addRecipeNutrition=true`, so results carry calories/macros inline.
+- **Connection fix** (`apps/api/src/server.ts`): added
+  `net.setDefaultAutoSelectFamilyAttemptTimeout(3000)`. Node's Happy Eyeballs
+  abandons each connection attempt after 250 ms by default; this network's TCP
+  handshake to Spoonacular (Cloudflare) takes ~600 ms, so every attempt timed
+  out (`AggregateError [ETIMEDOUT]`) and the search silently fell back to the
+  `food_catalog`. Widening the window fixes it.
+- **Cache fix** (`nutrition.service.ts`): `search()` only pre-caches items that
+  carry nutrition, so a name-only stub can't shadow the `{id}/information`
+  detail lookup.
+- **Images:** `NutritionItem` gained an `image` field (Spoonacular/Edamam fill
+  it, catalog is `null`). The Search results grid and `NutritionDetailDrawer`
+  now show the recipe photo, with a tinted-icon fallback.
+
+### 2. Meal-plan swap/regenerate variety
+
+- **Bug:** swap and regenerate never changed any meal. Root cause — the KNN
+  recommender (`services/ml/nutrimate_ml/recommender.py`) was fully
+  deterministic, so every rebuild produced the identical plan. (It was *not*
+  the catalog fallback, which is already randomized.)
+- **Fix:** `recommender.py` now picks **randomly** among the neighbour plans
+  whose base total fits the 0.5–2.0× serving-scale window (falls back to the
+  closest plan otherwise); `_substitute` randomizes over the 3 closest dishes.
+- **Seed data** (`services/ml/pipelines/seed_data.py`): `_COMBOS` expanded from
+  6 → **13 distinct meal combos per cluster**, so every seed plan is unique.
+- **KNN k** raised 5 → 8 (`pipelines/train_knn.py`) for a wider candidate pool.
+  **The KNN was retrained** (`knn_v0.1.0.pkl`, 52 plans, k=8) and the ML
+  service restarted. Re-run with `python pipelines/train_knn.py`.
+
+### 3. "Meal eaten" indicator on the Meals page
+
+- `GET /logs/day` (`apps/api/src/modules/logs/logs.service.ts`) now returns
+  `loggedMeals` — the distinct meal types logged that day.
+- The web `MealsPage` reads it via `useDaySummary()`; a logged meal card shows
+  an "Eaten ✓" indicator instead of the "Mark eaten" button (Swap disabled).
+  `useLogMeal` invalidates the `logs` queries, so the card flips immediately
+  and the state survives a reload (it is server-derived).
+
+### Known issue surfaced by fix #2
+
+`swapMeal` merges a meal that was serving-scaled for a *different* plan into the
+current one, so a swapped plan's total can drift above the ±10% band (~+20%
+observed). Pre-existing; invisible until swap actually changed something.
+Follow-up: re-scale the merged plan.
+
+---
+
 ## Decisions log (since the original plan)
 
 | #   | Decision                                              | Why                                                                                                                                |
@@ -548,23 +647,32 @@ pnpm --filter @nutrimate/web dev                             # web on :5173
 | 25  | `<RequireProfile>` route guard added                   | Dashboard / plans / logs all need a profile + prediction; the guard bounces profile-less users to `/setup` instead of erroring.   |
 | 26  | Recharts split into its own bundle (`manualChunks`)    | Recharts + d3 are ~120 kB gzipped; isolating them keeps the app chunk small and cacheable, and clears Vite's 500 kB warning.       |
 | 27  | Settings omits password-change & account-deletion      | No API endpoints exist for either (auth has only register/login/refresh/logout); a note is shown rather than a dead form.         |
+| 28  | Spoonacular uses the `/recipes` API, not `/food/ingredients` | NutriMate surfaces meals/recipes; `complexSearch` + `{id}/information` is the right surface and returns photos.              |
+| 29  | `net.setDefaultAutoSelectFamilyAttemptTimeout(3000)` in the API | Node's 250 ms Happy-Eyeballs default is shorter than this network's ~600 ms TCP handshake to Spoonacular — all attempts timed out. |
+| 30  | `addRecipeNutrition=true` on search + `image` on `NutritionItem` | Lets the results grid show calories/macros/photos without a per-item detail call.                                          |
+| 31  | KNN recommender randomized; 13 combos/cluster; k=5→8     | The recommender was deterministic, so swap/regenerate never varied. Randomized selection + richer seed data fix it.               |
+| 32  | `GET /logs/day` returns `loggedMeals`                    | The Meals page needs to know which meal types were logged to render the "Eaten" state; the day summary was aggregate-only.        |
 
 ---
 
 ## Known follow-ups when picking work back up
 
 - [ ] Decide whether to keep `bcryptjs` or revert to `bcrypt` for production (see Decision #6).
-- [ ] Begin **Phase 6 (Quality gates)** — Vitest (FE) / Jest+supertest (API) /
-      pytest (ML) unit + integration tests, Playwright happy-path e2e, NFR
-      measurement (API p95 ≤ 800 ms), axe-core a11y pass, OWASP review.
+- [ ] **Phase 6 (Quality gates) is descoped** — the automated-test suite
+      (Vitest/Jest/pytest, Playwright, NFR/a11y/OWASP) was dropped by user
+      decision. Re-scope it here if that changes.
+- [ ] **Fix `swapMeal` total drift** — a swapped meal keeps the serving scale
+      of the plan it was built in, so the day total can exceed ±10% of target.
+      Re-scale the merged plan in `recommendations.service.ts`.
 - [ ] **Add the missing account endpoints** the Settings page needs:
       `POST /auth/change-password` (requires current password) and
       `DELETE /me` (account deletion). Settings shows a note in their place
       until they exist (Decision #27).
-- [ ] Phase 5 pages have **no food images** — `MealCard`/recommendations carry
-      no `imageUrl` (none in the catalog/ML data). Wire real photos later if a
-      source is added; the components already degrade to a tinted placeholder.
-- [ ] Wire up real Spoonacular/Edamam keys when available — the nutrition module already proxies + caches; without keys it falls back to `food_catalog` (Decision #17).
+- [ ] **Recommendation/meal-plan cards still have no photos** — the KNN seed
+      data and `food_catalog` carry no images (only the Spoonacular nutrition
+      search does now). Wire photos into the recommender data if wanted.
+- [ ] **Edamam** is still unconfigured — Spoonacular is now keyed and active;
+      Edamam remains a code path for if/when its keys are added (Decision #17).
 - [ ] The monthly scheduler only fires on a month rollover within a single long-lived process (Decision #15); for production, trigger `runMonthlyMaintenance()` from a real cron / systemd timer.
 - [ ] Optional: replace synthetic-only ANN data with real Kaggle datasets (TRD §6.1 mentions them; not shipped — synthetic augmentation alone meets the MAE target).
 

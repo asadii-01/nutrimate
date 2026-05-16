@@ -1,8 +1,15 @@
+import net from "node:net";
 import { buildApp } from "./app.js";
 import { env } from "./config/env.js";
 import { connectMongo, disconnectMongo } from "./db/mongo.js";
 import { startScheduler } from "./jobs/scheduler.js";
 import { logger } from "./lib/logger.js";
+
+// Node's Happy Eyeballs abandons each connection attempt after 250ms by
+// default. On slow links the TCP handshake to external APIs (Spoonacular via
+// Cloudflare) takes ~600ms, so every attempt is dropped → `AggregateError
+// [ETIMEDOUT]` and a silent fallback. Widen the window so the handshake lands.
+net.setDefaultAutoSelectFamilyAttemptTimeout(3000);
 
 async function main(): Promise<void> {
   await connectMongo();

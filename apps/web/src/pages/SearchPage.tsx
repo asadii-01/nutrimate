@@ -12,22 +12,34 @@ import { SkeletonGrid } from "../components/states/Skeleton";
 /** A single search-result card. */
 function ResultCard({ item, onOpen }: { item: NutritionItem; onOpen: () => void }) {
   return (
-    <Card interactive onClick={onOpen} className="flex flex-col gap-sm">
-      <div className="flex items-start justify-between gap-sm">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary-container/15 text-primary">
-          <UtensilsCrossed size={20} />
-        </span>
-        <span className="flex items-center gap-base rounded-full bg-secondary-container px-sm py-base text-caption font-bold text-on-secondary">
+    <Card interactive onClick={onOpen} padded={false} className="flex flex-col overflow-hidden">
+      {/* Recipe thumbnail — falls back to a tinted icon when none is available */}
+      <div className="relative aspect-[16/10] bg-primary-container/15">
+        {item.image ? (
+          <img
+            src={item.image}
+            alt=""
+            loading="lazy"
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <span className="flex h-full w-full items-center justify-center text-primary">
+            <UtensilsCrossed size={32} />
+          </span>
+        )}
+        <span className="absolute right-sm top-sm flex items-center gap-base rounded-full bg-secondary-container px-sm py-base text-caption font-bold text-on-secondary shadow-card">
           <Flame size={12} /> {Math.round(item.kcal)} kcal
         </span>
       </div>
-      <h3 className="text-body-lg font-bold text-on-surface">{item.name}</h3>
-      <p className="text-caption text-on-surface-variant">
-        {item.macros
-          ? `P ${Math.round(item.macros.protein)}g · C ${Math.round(item.macros.carbs)}g · F ${Math.round(item.macros.fats)}g`
-          : "Macros not available"}
-      </p>
-      <span className="mt-auto pt-base text-label-md text-primary">View & log →</span>
+      <div className="flex flex-1 flex-col gap-sm p-md">
+        <h3 className="text-body-lg font-bold text-on-surface">{item.name}</h3>
+        <p className="text-caption text-on-surface-variant">
+          {item.macros
+            ? `P ${Math.round(item.macros.protein)}g · C ${Math.round(item.macros.carbs)}g · F ${Math.round(item.macros.fats)}g`
+            : "Macros not available"}
+        </p>
+        <span className="mt-auto pt-base text-label-md text-primary">View & log →</span>
+      </div>
     </Card>
   );
 }

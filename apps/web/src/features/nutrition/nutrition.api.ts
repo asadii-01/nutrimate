@@ -9,6 +9,7 @@ export interface NutritionItem {
   kcal: number;
   macros: { protein: number; carbs: number; fats: number } | null;
   servingSize: string | null;
+  image: string | null;
   source: "spoonacular" | "edamam" | "catalog";
 }
 

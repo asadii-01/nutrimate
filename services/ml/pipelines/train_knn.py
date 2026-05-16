@@ -6,7 +6,7 @@ Feature vector (5-dim, StandardScaler-normalized, Euclidean):
     goalEncoded:     lose=0, maintain=1, gain=2
     dietPrefEncoded: nonveg=0, veg=1, vegan=2
 
-Fits `NearestNeighbors(k=5)` on the 52 seed meal-plan profiles from
+Fits `NearestNeighbors(k=8)` on the 52 seed meal-plan profiles from
 `seed_data.py`. The artifact bundles the scaler, the index, and the full meal
 compositions so the FastAPI service can serve recommendations on startup.
 
@@ -29,7 +29,9 @@ from sklearn.preprocessing import StandardScaler
 from seed_data import DISHES, build_meal_plans
 
 VERSION = "0.1.0"
-DEFAULT_K = 5
+# k=8 surfaces more neighbour plans per query so the recommender has a wider
+# pool to randomise over (swap/regenerate variety).
+DEFAULT_K = 8
 GOAL_ENCODING = {"lose": 0, "maintain": 1, "gain": 2}
 DIET_ENCODING = {"nonveg": 0, "veg": 1, "vegan": 2}
 FEATURE_ORDER = ["age", "bmi", "activityLevel", "goalEncoded", "dietPrefEncoded"]

@@ -4,6 +4,7 @@ diet/budget-filtered plan scaled to the caller's kcal target (TRD §6.2)."""
 from __future__ import annotations
 
 import logging
+import random
 from typing import Any
 
 from .artifacts import ModelStore
@@ -40,14 +41,16 @@ def _substitute(
     dishes: dict[str, Any], meal_type: str, target_kcal: float,
     user_pref: str, budget: str | None,
 ) -> tuple[str, dict] | None:
-    """Pick the diet/budget-compatible dish of `meal_type` closest in kcal."""
+    """Pick a diet/budget-compatible dish of `meal_type` near `target_kcal`,
+    randomized over the closest few so repeated swaps produce variety."""
     pool = [
         (did, d) for did, d in dishes.items()
         if d["meal"] == meal_type and _diet_ok(user_pref, d["diet"]) and _cost_ok(budget, d["costTier"])
     ]
     if not pool:
         return None
-    return min(pool, key=lambda kv: abs(kv[1]["kcal"] - target_kcal))
+    pool.sort(key=lambda kv: abs(kv[1]["kcal"] - target_kcal))
+    return random.choice(pool[:3])
 
 
 def _filter_meal(
@@ -94,9 +97,8 @@ def recommend_meals(store: ModelStore, req: MealRecommendRequest) -> MealRecomme
     candidates = [plans[i] for i in indices[0]]
     matched_ids = [p["id"] for p in candidates]
 
-    # Filter each candidate's meals, then pick the plan whose filtered total is
-    # closest to the kcal target.
-    best: tuple[float, dict, list[list[tuple[str, dict]]]] | None = None
+    # Filter each candidate's meals; keep every plan that can be fully composed.
+    viable: list[tuple[dict, list[list[tuple[str, dict]]], float]] = []
     for plan in candidates:
         filtered = [
             _filter_meal(m, dishes, req.dietPref, req.budgetTier) for m in plan["meals"]
@@ -104,17 +106,22 @@ def recommend_meals(store: ModelStore, req: MealRecommendRequest) -> MealRecomme
         if any(len(fm) == 0 for fm in filtered):
             continue  # a meal could not be satisfied at all
         total = sum(d["kcal"] for fm in filtered for _, d in fm)
-        gap = abs(total - req.kcalTarget)
-        if best is None or gap < best[0]:
-            best = (gap, plan, filtered)
+        viable.append((plan, filtered, total))
 
-    if best is None:
+    if not viable:
         raise RecommendationError(
             f"no plan satisfies dietPref={req.dietPref} budgetTier={req.budgetTier}"
         )
 
-    _, chosen, filtered_meals = best
-    base_total = sum(d["kcal"] for fm in filtered_meals for _, d in fm)
+    # Any plan whose base total sits in the 0.5–2.0× serving-scale window can be
+    # scaled onto the target, so pick one at random — this is what gives
+    # swap/regenerate their variety. Fall back to the closest plan otherwise.
+    scalable = [v for v in viable if req.kcalTarget * 0.5 <= v[2] <= req.kcalTarget * 2.0]
+    chosen, filtered_meals, base_total = (
+        random.choice(scalable)
+        if scalable
+        else min(viable, key=lambda v: abs(v[2] - req.kcalTarget))
+    )
 
     # Scale servings so the plan lands near the target, clamped to a sane band.
     # 0.1-step rounding keeps the total within ±10% across the clamp range

@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import type { MealType } from "@nutrimate/shared-types";
 import { MEAL_LABELS, DIET_LABELS, BUDGET_LABELS } from "../lib/labels";
+import { cn } from "../lib/cn";
 import { useProfile } from "../features/profile/profile.api";
 import {
   useRegeneratePlan,
@@ -16,7 +17,7 @@ import {
   useTodayPlan,
   type PlanMeal,
 } from "../features/recommendations/recommendations.api";
-import { useLogMeal } from "../features/logs/logs.api";
+import { useDaySummary, useLogMeal } from "../features/logs/logs.api";
 import { useToast } from "../components/toast/useToast";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
@@ -43,19 +44,22 @@ function MealPlanCard({
   onEaten,
   swapping,
   logging,
+  eaten,
 }: {
   meal: PlanMeal;
   onSwap: () => void;
   onEaten: () => void;
   swapping: boolean;
   logging: boolean;
+  eaten: boolean;
 }) {
   const macros = mealMacros(meal);
   return (
-    <Card className="flex flex-col gap-sm">
+    <Card className={cn("flex flex-col gap-sm", eaten && "ring-1 ring-primary/40")}>
       <div className="flex items-center justify-between">
-        <h3 className="text-label-md uppercase text-on-surface-variant">
+        <h3 className="flex items-center gap-base text-label-md uppercase text-on-surface-variant">
           {MEAL_LABELS[meal.mealType]}
+          {eaten ? <Check size={14} className="text-primary" /> : null}
         </h3>
         <span className="rounded-full bg-secondary-container px-sm py-base text-caption font-bold text-on-secondary">
           {Math.round(meal.totalKcal)} kcal
@@ -91,12 +95,25 @@ function MealPlanCard({
       </div>
 
       <div className="mt-auto flex gap-sm pt-base">
-        <Button variant="secondary" size="sm" onClick={onSwap} loading={swapping} className="flex-1">
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={onSwap}
+          loading={swapping}
+          disabled={eaten}
+          className="flex-1"
+        >
           <Replace size={16} /> Swap
         </Button>
-        <Button size="sm" onClick={onEaten} loading={logging} className="flex-1">
-          <Check size={16} /> Mark eaten
-        </Button>
+        {eaten ? (
+          <span className="flex h-9 flex-1 items-center justify-center gap-xs rounded-md bg-primary-container/20 text-label-md font-semibold text-primary">
+            <Check size={16} /> Eaten
+          </span>
+        ) : (
+          <Button size="sm" onClick={onEaten} loading={logging} className="flex-1">
+            <Check size={16} /> Mark eaten
+          </Button>
+        )}
       </div>
     </Card>
   );
@@ -109,6 +126,10 @@ export function MealsPage() {
   const swap = useSwapMeal();
   const regenerate = useRegeneratePlan();
   const logMeal = useLogMeal();
+  // Which meal types are already logged today — `useLogMeal` invalidates this
+  // query on success, so a card flips to "Eaten" right after Mark eaten.
+  const daySummary = useDaySummary();
+  const loggedMeals = daySummary.data?.loggedMeals ?? [];
 
   // Track which meal is mid-swap / mid-log so only that card shows a spinner.
   const [busyMeal, setBusyMeal] = useState<MealType | null>(null);
@@ -227,6 +248,7 @@ export function MealsPage() {
                 onEaten={() => onEaten(meal)}
                 swapping={swap.isPending && busyMeal === meal.mealType}
                 logging={logMeal.isPending && busyMeal === meal.mealType}
+                eaten={loggedMeals.includes(meal.mealType)}
               />
             ))}
           </div>

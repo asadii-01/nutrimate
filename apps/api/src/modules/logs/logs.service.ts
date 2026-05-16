@@ -1,4 +1,4 @@
-import type { MealLogInput, WaterLogInput } from "@nutrimate/shared-types";
+import type { MealLogInput, MealType, WaterLogInput } from "@nutrimate/shared-types";
 import { ApiError } from "../../lib/errors.js";
 import { fromIsoDate, startOfUtcDay, toIsoDate } from "../../lib/dates.js";
 import { MealLog } from "../../models/MealLog.js";
@@ -78,6 +78,8 @@ interface DaySummary {
   macros: Macros;
   waterMl: number;
   waterGoalMl: number;
+  /** Distinct meal types logged that day — only populated by `getDaySummary`. */
+  loggedMeals?: MealType[];
 }
 
 /** Aggregate one day's meal + water logs against the calorie target. */
@@ -112,6 +114,7 @@ export async function getDaySummary(userId: string, isoDate: string): Promise<Da
     macros,
     waterMl: water?.totalMl ?? 0,
     waterGoalMl: WATER_GOAL_ML,
+    loggedMeals: [...new Set(meals.map((m) => m.mealType as MealType))],
   };
 }
 

@@ -79,6 +79,15 @@ export function NutritionDetailDrawer({
   return (
     <Drawer open={open} onClose={onClose} title={item.name} side="right">
       <div className="flex flex-col gap-md">
+        {/* Recipe image */}
+        {item.image ? (
+          <img
+            src={item.image}
+            alt=""
+            className="h-44 w-full rounded-lg object-cover"
+          />
+        ) : null}
+
         {/* Per-serving summary */}
         <div className="flex items-center justify-between rounded-lg bg-surface-container-low p-md">
           <div>
