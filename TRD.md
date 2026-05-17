@@ -57,7 +57,7 @@ This TRD translates the product requirements defined in `PRD.md` into a concrete
 |---|---|---|
 | **Web client** | React 18 + Vite + Tailwind | UI, auth token storage, charts, API calls |
 | **API gateway** | Node.js 20 + Express | REST endpoints, auth, request validation, orchestration, caching |
-| **ML service** | Python 3.11 + FastAPI | Calorie prediction (ANN), meal recommendation (KNN) |
+| **ML service** | Python 3.11 + FastAPI | Calorie prediction (ANN), meal recommendation (KNN), health-risk classification (SVM) |
 | **Database** | MongoDB 7 (Atlas M10+) | Persistent user, profile, log, catalog data |
 | **Object storage** | local volume| Trained model artifacts |
 | **External API** | Spoonacular REST | Food nutrition lookup |
@@ -96,12 +96,18 @@ nutrimate/
 | ORM/ODM | Mongoose | 8.x | Schema enforcement for MongoDB |
 | ML runtime | Python | 3.11 | TF/sklearn compatibility |
 | ML API | FastAPI | 0.110+ | Async, OpenAPI, fast |
-| ML libs | TensorFlow/Keras 2.15, scikit-learn 1.4, pandas, numpy | — | ANN + KNN |
+| ML libs | TensorFlow/Keras 2.16, scikit-learn 1.8, pandas, numpy | — | ANN + KNN + SVM |
 | DB | MongoDB | 7.x (Atlas) | Document-oriented fits profile/log |
 | Cache | Redis | 7.x | API cache, rate limiting |
 | CI/CD | GitHub Actions | — | Free tier, integrates with deploy targets |
 | Container | Docker | — | Reproducible builds |
 | Monitoring | Sentry + UptimeRobot | — | Errors + uptime |
+
+> **MVP scoping note:** Docker, CI/CD (GitHub Actions), Sentry and Redis are
+> **descoped for the MVP** — deploys are manual, structured logs are emitted via
+> `pino`, and in-process middleware handles rate limiting. The rows above are
+> retained as the intended production target. The ML service is co-located with
+> the API on a single host for the MVP (see Open Question 2).
 
 ---
 
@@ -160,8 +166,14 @@ All endpoints under `/api/v1`. JSON request/response. Auth via `Authorization: B
 |---|---|---|
 | POST | `/logs/meal` | Log a meal `{mealType, items, totalKcal}` |
 | POST | `/logs/water` | Log glasses `{glasses}` |
-| GET | `/logs/day?date=YYYY-MM-DD` | Day summary |
+| GET | `/logs/day?date=YYYY-MM-DD` | Day summary (incl. `loggedMeals`) |
 | GET | `/logs/range?from=&to=` | Date range (for charts) |
+
+### 4.6a Models
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/models/metrics` | ANN/KNN/SVM training metrics (proxied from `/ml/metrics`); used by the Settings PDF export |
 
 ### 4.7 ML Service (internal, called by API only)
 
@@ -171,6 +183,7 @@ All endpoints under `/api/v1`. JSON request/response. Auth via `Authorization: B
 | POST | `/ml/recommend-meals` | `{features, kcalTarget, dietPref, budget}` → `{meals[]}` |
 | POST | `/ml/predict-health-risk` | `{age, gender, height, weight, activity, bmi?}` → `{riskLevel, confidence, probabilities}` |
 | GET | `/ml/health` | Liveness + per-model versions |
+| GET | `/ml/metrics` | Per-model training metrics (ANN MAE, SVM accuracy/F1, KNN plan count) |
 
 ### 4.8 Error Format (RFC 7807-like)
 
@@ -237,6 +250,24 @@ All endpoints under `/api/v1`. JSON request/response. Auth via `Authorization: B
 }
 ```
 
+#### `meal_plans`
+```js
+{
+  _id: ObjectId,
+  userId: ObjectId,        // indexed
+  date: Date,              // indexed
+  meals: [{ mealType, items[], totalKcal }],
+  totalKcal: Number,
+  source: String,          // 'knn'|'fallback'
+  matchedPlanIds: [String],
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+Compound index: `{ userId: 1, date: 1 }` (unique). Persists the recommended
+plan per day so `/recommendations/swap` and `/regenerate` mutate a stable
+document rather than recomputing non-deterministically.
+
 #### `meal_logs`
 ```js
 {
@@ -293,6 +324,7 @@ Compound index: `{ userId: 1, date: 1 }`.
 - `users.email` — unique
 - `profiles.userId` — unique
 - `predictions.{userId, date}` — compound
+- `meal_plans.{userId, date}` — compound, unique
 - `meal_logs.{userId, date}` — compound
 - `food_catalog.name` — text
 - `nutrition_cache.fetchedAt` — TTL 86400s

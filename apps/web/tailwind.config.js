@@ -1,10 +1,6 @@
 /**
  * NutriMate Tailwind theme.
  *
- * Hand-translated from `designs/nutrimate_design_system/DESIGN.md`. The color
- * tokens, typography scale, spacing, radius and shadow values below match the
- * YAML frontmatter of that file exactly — it is the single source of truth for
- * the visual language. Keep them in sync if DESIGN.md changes.
  */
 
 /** @type {import('tailwindcss').Config} */

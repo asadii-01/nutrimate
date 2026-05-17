@@ -13,7 +13,7 @@
 
 ## 1. Executive Summary
 
-NutriMate is an AI-powered web application that delivers personalized diet and meal recommendations using Machine Learning. It targets students, gym beginners, and budget-conscious users — particularly in the Pakistani market — by combining ANN-based calorie prediction, KNN-based meal recommendations, and external nutrition APIs in a clean, responsive interface.
+NutriMate is an AI-powered web application that delivers personalized diet and meal recommendations using Machine Learning. It targets students, gym beginners, and budget-conscious users — particularly in the Pakistani market — by combining ANN-based calorie prediction, KNN-based meal recommendations, SVM-based health-risk classification, and external nutrition APIs in a clean, responsive interface.
 
 **Primary value proposition:** Affordable, intelligent, localized nutrition guidance that replaces costly dietitian consultations.
 
@@ -24,6 +24,7 @@ NutriMate is an AI-powered web application that delivers personalized diet and m
 ### 2.1 Product Goals
 - Deliver accurate (>85%) calorie requirement predictions via ANN.
 - Generate relevant meal recommendations via KNN with measurable user satisfaction.
+- Grade multi-factor health risk via an SVM classifier.
 - Provide a localized, budget-friendly food catalog for the Pakistani student demographic.
 
 
@@ -71,10 +72,12 @@ NutriMate fills this gap with an ML-driven, localized, free-tier-accessible prod
 - Health profile capture.
 - ANN-based daily calorie prediction.
 - KNN-based meal recommendation engine.
+- SVM-based health-risk classification (low/moderate/high).
 - Food nutrition search (third-party API).
 - Water intake tracker.
 - Insights dashboard with charts.
 - Budget-friendly meal catalog (Pakistani foods).
+- Data export — downloadable 7-day PDF report (profile, predictions, logs, ML model report).
 
 ---
 
@@ -142,6 +145,7 @@ NutriMate fills this gap with an ML-driven, localized, free-tier-accessible prod
 | FR-7.1 | Show today's calorie intake vs. target. |
 | FR-7.2 | Show macronutrient breakdown pie chart (protein/carbs/fats). |
 | FR-7.3 | Show BMI card. |
+| FR-7.3a | Show health-risk card (low/moderate/high, from the SVM classifier). |
 | FR-7.4 | Show hydration progress. |
 | FR-7.5 | Show 7-day weight & calorie trend line chart. |
 | FR-7.6 | Fully responsive (mobile, tablet, desktop). |
@@ -152,6 +156,22 @@ NutriMate fills this gap with an ML-driven, localized, free-tier-accessible prod
 | FR-8.1 | Curated catalog of ≥ 50 Pakistani/student-friendly meals at launch. |
 | FR-8.2 | Each meal tagged: cost tier, prep time, hostel-friendly flag. |
 | FR-8.3 | Meals integrate into KNN candidate pool when budget tier = low. |
+
+### 6.9 FR-9: Health-Risk Classification (SVM)
+| ID | Requirement |
+|---|---|
+| FR-9.1 | Grade the user's overall health risk as low / moderate / high. |
+| FR-9.2 | Use a multi-factor model (age, gender, height, weight, BMI, activity) — distinct from the single-factor BMI category. |
+| FR-9.3 | Surface the risk grade on the dashboard with a confidence indicator. |
+| FR-9.4 | Fall back to a BMI-band heuristic if the ML service is unavailable. |
+| FR-9.5 | SVM test accuracy must be ≥ 80% on the holdout set. |
+
+### 6.10 FR-10: Data Export
+| ID | Requirement |
+|---|---|
+| FR-10.1 | User can export their data as a downloadable PDF report from Settings. |
+| FR-10.2 | Report covers the last 7 days of logs plus the current profile. |
+| FR-10.3 | Report includes an ML model section — each model's prediction and the ANN/SVM training accuracy. |
 
 ---
 
@@ -190,7 +210,7 @@ NutriMate fills this gap with an ML-driven, localized, free-tier-accessible prod
 | State management | React Query + Context API |
 | Backend API | Node.js + Express.js |
 | ML Service | Python FastAPI |
-| ML Libraries | scikit-learn (KNN), TensorFlow/Keras (ANN), pandas, numpy |
+| ML Libraries | scikit-learn (KNN + SVM), TensorFlow/Keras (ANN), pandas, numpy |
 | Database | MongoDB (Atlas managed) |
 | Auth | JWT + bcrypt |
 | External APIs | Spoonacular (primary), Edamam (fallback) |
@@ -213,9 +233,9 @@ NutriMate fills this gap with an ML-driven, localized, free-tier-accessible prod
 - **Inputs:** age, gender (one-hot), height, weight, activity level (ordinal).
 - **Output:** daily calorie requirement (regression).
 - **Architecture:** 3 hidden layers (64/32/16), ReLU, Adam optimizer, MSE loss.
-- **Training data:** Kaggle nutrition/calorie datasets + Mifflin–St Jeor synthetic augmentation.
+- **Training data:** hybrid — real Kaggle demographic rows with a Mifflin–St Jeor kcal label (BMI is the engineered 8th input feature).
 - **Validation:** 80/10/10 split; target MAE ≤ 150 kcal.
-- **Deployment:** Saved as `.h5` or `SavedModel`; served via FastAPI endpoint.
+- **Deployment:** Saved as a versioned `.keras` model + `scaler.pkl`; served via FastAPI endpoint.
 
 ### 9.2 KNN (Meal Recommendation)
 - **Feature vector:** normalized {age, BMI, activity level, goal, diet pref}.
@@ -223,6 +243,13 @@ NutriMate fills this gap with an ML-driven, localized, free-tier-accessible prod
 - **Distance:** Euclidean on normalized features.
 - **Recommendation logic:** retrieve meal plans of k-nearest users; filter by dietary/budget constraints; rank by calorie-target proximity.
 - **Cold start:** seed with curated meal plans per profile cluster.
+
+### 9.3 SVM (Health-Risk Classification)
+- **Inputs:** age, gender (one-hot), height, weight, BMI, activity level — 8 dims (same layout as the ANN).
+- **Output:** health-risk class — low / moderate / high (with class probabilities).
+- **Model:** scikit-learn `Pipeline` of `StandardScaler` + `SVC` (RBF kernel, balanced class weights).
+- **Training data:** the real UCI/Kaggle "Obesity Levels" dataset; its 7 obesity classes collapsed to 3 risk levels.
+- **Validation:** 80/10/10 stratified split; target accuracy ≥ 80%.
 
 ---
 

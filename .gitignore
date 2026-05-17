@@ -2,6 +2,15 @@
 node_modules/
 .pnpm-store/
 
+# Design mocks (kept locally, not tracked)
+designs/
+
+# Internal build log (kept locally, not tracked)
+HANDOFF.md
+
+# ML viva-prep notes (kept locally, not tracked)
+ML_SERVICE_EXPLAINED.md
+
 # Build output
 dist/
 build/

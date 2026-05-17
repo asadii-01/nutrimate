@@ -234,6 +234,39 @@ This feature makes the project more unique and practical.
 
 ---
 
+## I. Health Risk Assessment
+
+The system grades the user's overall health risk as **low / moderate / high**.
+
+### ML Model
+## SVM (Support Vector Machine)
+
+### Inputs
+- age
+- gender
+- height
+- weight
+- BMI
+- activity level
+
+### Output
+- health-risk class (low / moderate / high) with confidence
+
+### Why SVM?
+Unlike the single-factor BMI category, the SVM weighs several body metrics
+together to give a more holistic risk grade. It is trained on the real
+UCI/Kaggle "Obesity Levels" dataset.
+
+---
+
+## J. Data Export
+
+From Settings, the user can download a **7-day PDF report** containing their
+profile, ML model predictions and accuracy, recommended meals, and the recent
+food/water log.
+
+---
+
 # 6. Machine Learning Implementation
 
 # ML Models Used
@@ -242,6 +275,7 @@ This feature makes the project more unique and practical.
 |---|---|
 | ANN | Predict calorie requirements |
 | KNN | Recommend personalized meal plans |
+| SVM | Classify multi-factor health risk |
 
 ---
 
@@ -389,6 +423,7 @@ NutriMate is a practical AI-powered healthcare and nutrition platform designed t
 The project successfully combines:
 - ANN-based calorie prediction
 - KNN-based recommendation system
+- SVM-based health-risk classification
 - external nutrition APIs
 - modern web technologies
 
