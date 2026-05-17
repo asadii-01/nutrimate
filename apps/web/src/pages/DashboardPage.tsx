@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Activity, Flame, Plus, UtensilsCrossed } from "lucide-react";
-import type { DaySummary } from "@nutrimate/shared-types";
+import { Activity, Flame, Plus, ShieldAlert, UtensilsCrossed } from "lucide-react";
+import type { DaySummary, HealthRisk, HealthRiskLevel } from "@nutrimate/shared-types";
 import { longLabel, isoDaysAgo, todayIso } from "../lib/dates";
-import { BMI_LABELS, MEAL_LABELS } from "../lib/labels";
+import { BMI_LABELS, HEALTH_RISK_HINTS, HEALTH_RISK_LABELS, MEAL_LABELS } from "../lib/labels";
 import { useAuth } from "../features/auth/useAuth";
 import { useCaloriePrediction } from "../features/predictions/predictions.api";
+import { useHealthRisk } from "../features/health-risk/health-risk.api";
 import { useDaySummary, useRange } from "../features/logs/logs.api";
 import { useTodayPlan } from "../features/recommendations/recommendations.api";
 import { QuickLogDrawer } from "../features/logs/QuickLogDrawer";
@@ -54,6 +55,38 @@ function BmiCard({ bmi, category }: { bmi: number; category: keyof typeof BMI_LA
           <span>Obese</span>
         </div>
       </div>
+    </Card>
+  );
+}
+
+/** Risk-level → colour tones (primary=green, secondary=orange, error=red). */
+const RISK_TONE: Record<HealthRiskLevel, { chip: string; text: string }> = {
+  low: { chip: "bg-primary/10 text-primary", text: "text-primary" },
+  moderate: { chip: "bg-secondary/10 text-secondary", text: "text-secondary" },
+  high: { chip: "bg-error/10 text-error", text: "text-error" },
+};
+
+/** Multi-factor health-risk tile — graded by the SVM classifier. */
+function HealthRiskCard({ risk }: { risk: HealthRisk }) {
+  const tone = RISK_TONE[risk.riskLevel];
+  const caption =
+    risk.source === "svm" && risk.confidence != null
+      ? `AI model · ${Math.round(risk.confidence * 100)}% confidence`
+      : "Estimated from BMI";
+  return (
+    <Card className="flex flex-col gap-sm">
+      <div className="flex items-center justify-between">
+        <span className="text-label-md uppercase text-on-surface-variant">Health risk</span>
+        <span className={`rounded-md px-xs py-base text-caption font-semibold ${tone.chip}`}>
+          {HEALTH_RISK_LABELS[risk.riskLevel]}
+        </span>
+      </div>
+      <span className={`flex items-center gap-base text-display-lg ${tone.text}`}>
+        <ShieldAlert size={28} />
+        {HEALTH_RISK_LABELS[risk.riskLevel].replace(" risk", "")}
+      </span>
+      <p className="text-body-md text-on-surface-variant">{HEALTH_RISK_HINTS[risk.riskLevel]}</p>
+      <span className="mt-auto text-caption text-on-surface-variant">{caption}</span>
     </Card>
   );
 }
@@ -116,6 +149,7 @@ function MealPreview() {
 export function DashboardPage() {
   const { user } = useAuth();
   const prediction = useCaloriePrediction();
+  const healthRisk = useHealthRisk();
   const today = useDaySummary(todayIso());
   const range = useRange(isoDaysAgo(6), todayIso());
   const [quickLogOpen, setQuickLogOpen] = useState(false);
@@ -137,7 +171,7 @@ export function DashboardPage() {
       </header>
 
       {/* Top metrics */}
-      <div className="grid grid-cols-1 gap-md md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-md sm:grid-cols-2 lg:grid-cols-4">
         {/* Calories */}
         {today.isLoading ? (
           <SkeletonCard />
@@ -178,6 +212,21 @@ export function DashboardPage() {
           </Card>
         ) : (
           <BmiCard bmi={prediction.data.bmi} category={prediction.data.bmiCategory} />
+        )}
+
+        {/* Health risk (SVM) */}
+        {healthRisk.isLoading ? (
+          <SkeletonCard />
+        ) : healthRisk.isError || !healthRisk.data ? (
+          <Card>
+            <ErrorState
+              error={healthRisk.error}
+              title="Health risk unavailable"
+              onRetry={() => void healthRisk.refetch()}
+            />
+          </Card>
+        ) : (
+          <HealthRiskCard risk={healthRisk.data} />
         )}
 
         {/* Hydration */}

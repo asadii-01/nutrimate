@@ -9,6 +9,7 @@ import type {
   DietPref,
   Gender,
   Goal,
+  HealthRiskLevel,
   MealType,
 } from "@nutrimate/shared-types";
 
@@ -70,4 +71,16 @@ export const BMI_LABELS: Record<BmiCategory, string> = {
   normal: "Healthy",
   overweight: "Overweight",
   obese: "Obese",
+};
+
+export const HEALTH_RISK_LABELS: Record<HealthRiskLevel, string> = {
+  low: "Low risk",
+  moderate: "Moderate risk",
+  high: "High risk",
+};
+
+export const HEALTH_RISK_HINTS: Record<HealthRiskLevel, string> = {
+  low: "Your metrics suggest a healthy profile — keep it up.",
+  moderate: "Some metrics are worth watching. Small changes help.",
+  high: "Several metrics indicate elevated risk. Consider a check-up.",
 };

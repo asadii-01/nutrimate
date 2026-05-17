@@ -1,9 +1,10 @@
 """FastAPI entrypoint for the NutriMate ML service.
 
 Endpoints (TRD §6.4):
-    GET  /ml/health           — model versions + load time
-    POST /ml/predict-calories — ANN calorie prediction
-    POST /ml/recommend-meals  — KNN meal recommendation
+    GET  /ml/health             — model versions + load time
+    POST /ml/predict-calories   — ANN calorie prediction
+    POST /ml/recommend-meals    — KNN meal recommendation
+    POST /ml/predict-health-risk — SVM health-risk classification
 
 Models load once on startup. If an artifact is missing the service still comes
 up; the affected endpoint returns 503 so the API can fall back (TRD §6.5).
@@ -23,10 +24,13 @@ from .artifacts import store
 from .config import settings
 from .predictor import predict_calories
 from .recommender import RecommendationError, recommend_meals
+from .risk import predict_health_risk
 from .schemas import (
     CaloriePredictRequest,
     CaloriePredictResponse,
     HealthResponse,
+    HealthRiskRequest,
+    HealthRiskResponse,
     MealRecommendRequest,
     MealRecommendResponse,
 )
@@ -43,10 +47,11 @@ async def lifespan(_: FastAPI):
     started = time.perf_counter()
     store.load()
     logger.info(
-        "startup complete in %.2fs (ann=%s knn=%s)",
+        "startup complete in %.2fs (ann=%s knn=%s svm=%s)",
         time.perf_counter() - started,
         store.ann_ready,
         store.knn_ready,
+        store.svm_ready,
     )
     yield
 
@@ -66,9 +71,10 @@ async def timing(request: Request, call_next):
 
 @app.get("/ml/health", response_model=HealthResponse)
 async def health() -> HealthResponse:
-    if store.ann_ready and store.knn_ready:
+    ready = [store.ann_ready, store.knn_ready, store.svm_ready]
+    if all(ready):
         status = "ok"
-    elif store.ann_ready or store.knn_ready:
+    elif any(ready):
         status = "degraded"
     else:
         status = "down"
@@ -76,8 +82,10 @@ async def health() -> HealthResponse:
         status=status,
         annVersion=store.ann_version,
         knnVersion=store.knn_version,
+        svmVersion=store.svm_version,
         annLoaded=store.ann_ready,
         knnLoaded=store.knn_ready,
+        svmLoaded=store.svm_ready,
         loadedAt=store.loaded_at,
     )
 
@@ -104,6 +112,17 @@ async def recommend(req: MealRecommendRequest) -> MealRecommendResponse:
     except Exception:  # noqa: BLE001
         logger.exception("recommendation failed")
         raise HTTPException(status_code=500, detail="recommendation failed")
+
+
+@app.post("/ml/predict-health-risk", response_model=HealthRiskResponse)
+async def predict_risk(req: HealthRiskRequest) -> HealthRiskResponse:
+    if not store.svm_ready:
+        raise HTTPException(status_code=503, detail="health-risk model unavailable")
+    try:
+        return predict_health_risk(store, req)
+    except Exception:  # noqa: BLE001
+        logger.exception("health-risk prediction failed")
+        raise HTTPException(status_code=500, detail="health-risk prediction failed")
 
 
 @app.exception_handler(Exception)

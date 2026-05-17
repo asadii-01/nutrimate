@@ -73,11 +73,33 @@ class MealRecommendResponse(BaseModel):
     modelVersion: str
 
 
+# --- /ml/predict-health-risk ------------------------------------------------
+RiskLevel = Literal["low", "moderate", "high"]
+
+
+class HealthRiskRequest(BaseModel):
+    age: int = Field(ge=13, le=80)
+    gender: Gender
+    heightCm: float = Field(ge=100, le=250)
+    weightKg: float = Field(ge=30, le=250)
+    activityLevel: ActivityLevel
+    bmi: float | None = Field(default=None, ge=10, le=60)
+
+
+class HealthRiskResponse(BaseModel):
+    riskLevel: RiskLevel
+    confidence: float = Field(ge=0, le=1)
+    probabilities: dict[str, float]
+    modelVersion: str
+
+
 # --- /ml/health -------------------------------------------------------------
 class HealthResponse(BaseModel):
     status: Literal["ok", "degraded", "down"]
     annVersion: str | None
     knnVersion: str | None
+    svmVersion: str | None
     annLoaded: bool
     knnLoaded: bool
+    svmLoaded: bool
     loadedAt: str | None

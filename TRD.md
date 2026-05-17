@@ -141,6 +141,12 @@ All endpoints under `/api/v1`. JSON request/response. Auth via `Authorization: B
 | POST | `/recommendations/swap` | Swap a meal `{mealType}` |
 | POST | `/recommendations/regenerate` | Regenerate entire day |
 
+### 4.4a Health Risk
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/health-risk` | Multi-factor health-risk grade (SVM classifier) |
+
 ### 4.5 Nutrition Search
 
 | Method | Path | Description |
@@ -163,7 +169,8 @@ All endpoints under `/api/v1`. JSON request/response. Auth via `Authorization: B
 |---|---|---|
 | POST | `/ml/predict-calories` | `{age, gender, height, weight, activity}` → `{kcal, confidence}` |
 | POST | `/ml/recommend-meals` | `{features, kcalTarget, dietPref, budget}` → `{meals[]}` |
-| GET | `/ml/health` | Liveness + model version |
+| POST | `/ml/predict-health-risk` | `{age, gender, height, weight, activity, bmi?}` → `{riskLevel, confidence, probabilities}` |
+| GET | `/ml/health` | Liveness + per-model versions |
 
 ### 4.8 Error Format (RFC 7807-like)
 
@@ -350,31 +357,64 @@ Input(8) → Dense(64, relu) → Dropout(0.2)
 - Seed 50+ curated meal plans grouped by 4 profile clusters (low-cal/high-cal × veg/non-veg).
 - KNN backed by seeded data until user volume ≥ 100.
 
-### 6.3 Training Pipeline
+### 6.3 SVM — Health-Risk Classification
+
+A multi-factor health-risk classifier — distinct from the deterministic BMI
+category, which uses BMI alone. Grades a user as **low / moderate / high** risk.
+
+**Feature vector:**
+8 dims, identical layout to the ANN —
+`[age, gender (one-hot ×3), heightCm, weightKg, activityLevelOrdinal, bmi]`.
+
+**Architecture:**
+- scikit-learn `Pipeline` = `StandardScaler` → `SVC(kernel="rbf",
+  probability=True, class_weight="balanced")`.
+- Bundling the scaler in the Pipeline guarantees the inference path applies the
+  exact scaling fitted at train time.
+
+**Data source:**
+- The real UCI / Kaggle "Obesity Levels" dataset
+  (`ObesityDataSet_raw_and_data_sinthetic.csv`, ~2,111 rows). Its 7-class
+  `NObeyesdad` label is collapsed to 3 risk classes
+  (`Insufficient/Normal → low`, `Overweight I/II → moderate`,
+  `Obesity I/II/III → high`). Height is converted m→cm; `FAF` is binned to the
+  1–5 activity ordinal.
+
+**Validation:**
+- 80/10/10 stratified split. Reference: accuracy ≥ 0.80 on test.
+- Latest run: test accuracy 96.2%, macro-F1 0.95.
+
+**Artifact:**
+- Saved as `models/svm_v{semver}.pkl` (joblib) holding the Pipeline + class list.
+
+### 6.4 Training Pipeline
 
 ```
-raw/  →  preprocess.py  →  features/  →  train_ann.py / train_knn.py
-                                        ↓
-                                   models/ (versioned)
-                                        ↓
-                                  upload to S3 / model dir
-                                        ↓
-                              FastAPI loads on startup
+raw/  →  preprocess*.py  →  features/  →  train_ann.py / train_knn.py / train_svm.py
+                                         ↓
+                                    models/ (versioned)
+                                         ↓
+                                   upload to S3 / model dir
+                                         ↓
+                               FastAPI loads on startup
 ```
 
 - Training is offline (notebook + script).
 - Reproducibility: fixed `random_state`, pinned `requirements.txt`.
 - Retraining cadence: monthly, or when user count doubles.
 
-### 6.4 Inference SLAs
+### 6.5 Inference SLAs
 - ANN: ≤ 500 ms p95.
 - KNN: ≤ 300 ms p95.
-- ML service exposes `/ml/health` returning `{status, modelVersion, loadedAt}`.
+- SVM: ≤ 300 ms p95.
+- ML service exposes `/ml/health` returning per-model `{status, version, loaded}`.
 
-### 6.5 Fallback Logic
+### 6.6 Fallback Logic
 If ML service is unreachable or returns 5xx:
-- API computes BMR via Mifflin–St Jeor + activity multiplier.
+- Calorie target: API computes BMR via Mifflin–St Jeor + activity multiplier.
 - Meal recommendations served from curated `food_catalog` only.
+- Health risk: API derives the level from the BMI band
+  (`underweight|normal → low`, `overweight → moderate`, `obese → high`).
 - Response sets `source: "fallback"`.
 
 ---

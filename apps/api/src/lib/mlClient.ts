@@ -1,6 +1,8 @@
 import type {
   CaloriePredictRequest,
   CaloriePredictResponse,
+  HealthRiskMlResponse,
+  HealthRiskRequest,
   MealRecommendRequest,
 } from "@nutrimate/shared-types";
 import { env } from "../config/env.js";
@@ -69,4 +71,9 @@ export function predictCalories(input: CaloriePredictRequest): Promise<CaloriePr
 /** KNN meal recommendation. Throws `MlServiceError` so callers can fall back. */
 export function recommendMeals(input: MealRecommendRequest): Promise<MealRecommendResult> {
   return callMl<MealRecommendResult>("/ml/recommend-meals", input);
+}
+
+/** SVM health-risk classification. Throws `MlServiceError` so callers can fall back. */
+export function predictHealthRisk(input: HealthRiskRequest): Promise<HealthRiskMlResponse> {
+  return callMl<HealthRiskMlResponse>("/ml/predict-health-risk", input);
 }

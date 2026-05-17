@@ -22,6 +22,7 @@ logger = logging.getLogger("nutrimate_ml.artifacts")
 
 _ANN_RE = re.compile(r"calorie_ann_v(?P<ver>[\d.]+)\.keras$")
 _KNN_RE = re.compile(r"knn_v(?P<ver>[\d.]+)\.pkl$")
+_SVM_RE = re.compile(r"svm_v(?P<ver>[\d.]+)\.pkl$")
 
 
 def _latest(models_dir: Path, pattern: re.Pattern[str]) -> tuple[Path, str] | None:
@@ -51,6 +52,8 @@ class ModelStore:
         self.ann_version: str | None = None
         self.knn: dict[str, Any] | None = None
         self.knn_version: str | None = None
+        self.svm: dict[str, Any] | None = None
+        self.svm_version: str | None = None
         self.loaded_at: str | None = None
         self.errors: list[str] = []
 
@@ -62,11 +65,16 @@ class ModelStore:
     def knn_ready(self) -> bool:
         return self.knn is not None
 
+    @property
+    def svm_ready(self) -> bool:
+        return self.svm is not None
+
     def load(self) -> None:
         models_dir = settings.models_dir
         logger.info("loading model artifacts from %s", models_dir)
         self._load_ann(models_dir)
         self._load_knn(models_dir)
+        self._load_svm(models_dir)
         self.loaded_at = datetime.now(timezone.utc).isoformat()
 
     def _load_ann(self, models_dir: Path) -> None:
@@ -112,6 +120,28 @@ class ModelStore:
         except Exception as exc:  # noqa: BLE001
             self.errors.append(f"KNN load failed: {exc}")
             logger.exception("failed to load KNN model")
+
+    def _load_svm(self, models_dir: Path) -> None:
+        found = _latest(models_dir, _SVM_RE)
+        if found is None:
+            self.errors.append("SVM model file not found")
+            logger.warning(
+                "SVM model not found in %s — predict-health-risk will 503", models_dir
+            )
+            return
+        svm_path, version = found
+        try:
+            self.svm = joblib.load(svm_path)
+            self.svm_version = self.svm.get("version", version)
+            logger.info(
+                "loaded SVM v%s (classes=%s) from %s",
+                self.svm_version,
+                self.svm.get("classes"),
+                svm_path.name,
+            )
+        except Exception as exc:  # noqa: BLE001
+            self.errors.append(f"SVM load failed: {exc}")
+            logger.exception("failed to load SVM model")
 
 
 store = ModelStore()

@@ -2,7 +2,7 @@
 
 | Field          | Value                                                                                            |
 | -------------- | ------------------------------------------------------------------------------------------------ |
-| Last updated   | 2026-05-17 (ANN migrated to a hybrid real-Kaggle dataset — see "ANN real-dataset migration")       |
+| Last updated   | 2026-05-17 (added a 3rd ML model — health-risk SVM — see "SVM health-risk model")                  |
 | Author         | Claude (Opus 4.7) + Asad                                                                         |
 | Current phase  | Phase 5 complete & verified; Phase 6 descoped; post-Phase-5 fixes ongoing                        |
 | Repo location  | **`/home/asad-tauqeer/develop/ml`** (ext4) — see "Repo location & migration" below               |
@@ -23,9 +23,19 @@
 - **Post-Phase-5 fixes (2026-05-16):** Spoonacular recipe search wired up with
   real keys, the meal-plan swap/regenerate "nothing changes" bug fixed, and a
   "meal eaten" indicator added to the Meals page. See "Post-Phase-5 changes".
+- **ANN dataset migration (2026-05-17):** the calorie ANN moved off the fully
+  synthetic grid to a hybrid dataset — real Kaggle demographic rows + a
+  Mifflin–St Jeor kcal label. ANN v0.2.0, test MAE 114, verified. See "ANN
+  real-dataset migration".
+- **SVM health-risk model (2026-05-17):** a 3rd ML model added — an `SVC`
+  health-risk classifier (low/moderate/high), trained on the real UCI/Kaggle
+  "Obesity Levels" dataset (test accuracy 96.2%). Exposed end-to-end:
+  `POST /ml/predict-health-risk` → `GET /api/v1/health-risk` → a dashboard
+  "Health risk" card. SVM v0.1.0, verified. See "SVM health-risk model".
 - **Project is a git repo** (branch `master`). Linear history on the ext4 copy:
-  `4de2bf5` Phases 0–2 → `fa85873` Phase 3 → `93b077b` Phase 4 → `721ae59` Phase 5.
-  The post-Phase-5 fixes are uncommitted working-tree changes.
+  `4de2bf5` Phases 0–2 → `fa85873` Phase 3 → `93b077b` Phase 4 → `721ae59`
+  Phase 5 → `c41872d` post-Phase-5 fixes → `92c4cdb` ANN hybrid-dataset
+  migration. Working tree is clean.
 - **The project now lives on ext4** at `/home/asad-tauqeer/develop/ml`. The old
   NTFS partition copy is detached and obsolete — all NTFS workaround notes below
   are **historical only**. See "Repo location & migration".
@@ -661,6 +671,56 @@ public dataset directly measures TDEE, so a real intake *label* was a dead end.
 
 ---
 
+## SVM health-risk model (2026-05-17)
+
+A **third ML model** was added — primarily to demonstrate ML breadth
+(ANN + KNN + SVM). It is a multi-factor **health-risk classifier**: an
+`sklearn.svm.SVC` (RBF kernel) grading a user **low / moderate / high** risk
+from age + gender + height + weight + BMI + activity. This is distinct from the
+existing BMI "category", which is a plain BMI-threshold lookup (`bmi.ts`), not a
+model — the SVM uses all six factors.
+
+**Dataset.** The real UCI/Kaggle "Obesity Levels" dataset
+(`ObesityDataSet_raw_and_data_sinthetic.csv`, 2,111 rows). Unlike the ANN, this
+has a *genuine* label — the 7-class `NObeyesdad` obesity level — so no synthetic
+label was needed. Fetched from the UCI mirror (archive.ics.uci.edu, dataset
+544); placed at `services/ml/data/raw/` (gitignored). `preprocess_obesity.py`
+converts height m→cm, bins `FAF` (0–3) to the 1–5 activity ordinal, and
+collapses the 7 classes to 3 (`Insufficient/Normal → low`,
+`Overweight I/II → moderate`, `Obesity I/II/III → high`).
+
+**Model.** A scikit-learn `Pipeline` bundling `StandardScaler` + `SVC`
+(`probability=True`, `class_weight="balanced"`), saved as `models/svm_v0.1.0.pkl`
+(joblib). 8-dim input — the same feature layout as the ANN.
+
+**Wiring (all additive — ANN/KNN flows untouched):**
+- ML service: `pipelines/preprocess_obesity.py`, `pipelines/train_svm.py`,
+  `nutrimate_ml/risk.py` (inference), plus loader/route/schema changes in
+  `artifacts.py` / `main.py` / `schemas.py`. New route
+  `POST /ml/predict-health-risk`; `/ml/health` now reports `svmVersion`/`svmLoaded`
+  and is `ok` only when all three models load.
+- API: `mlClient.ts` gained `predictHealthRisk()`; a new
+  `modules/health-risk/` module serves `GET /api/v1/health-risk`. The result is
+  **computed on demand, not persisted** (no new Mongo model). ML-down fallback
+  derives risk from the BMI band, `source: "fallback"`,
+  `modelVersion: "bmi-heuristic-v1"`.
+- shared-types: `HEALTH_RISK_LEVELS` enum in `common.ts`, new `healthRisk.ts`.
+- Web: `features/health-risk/health-risk.api.ts` + a "Health risk" card on the
+  dashboard (next to the BMI card). The metrics grid is now a 4-up row.
+
+**Result — verified (2026-05-17):** SVM v0.1.0, **test accuracy 96.2%**,
+macro-F1 0.95. `/ml/health` reports `svmVersion 0.1.0`, status `ok`. End-to-end
+smoke test green — `/ml/predict-health-risk` returns high/moderate/low correctly;
+`GET /api/v1/health-risk` returns `source:"svm"`; with the ML service stopped it
+falls back to `source:"fallback"` (HTTP 200). `pnpm typecheck/lint/build` green.
+
+**Re-run:** download `ObesityDataSet_raw_and_data_sinthetic.csv` into
+`services/ml/data/raw/`, then
+`python pipelines/preprocess_obesity.py && python pipelines/train_svm.py`,
+then restart the ML service.
+
+---
+
 ## Decisions log (since the original plan)
 
 | #   | Decision                                              | Why                                                                                                                                |
@@ -698,6 +758,8 @@ public dataset directly measures TDEE, so a real intake *label* was a dead end.
 | 31  | KNN recommender randomized; 13 combos/cluster; k=5→8     | The recommender was deterministic, so swap/regenerate never varied. Randomized selection + richer seed data fix it.               |
 | 32  | `GET /logs/day` returns `loggedMeals`                    | The Meals page needs to know which meal types were logged to render the "Eaten" state; the day summary was aggregate-only.        |
 | 33  | ANN uses a hybrid dataset: real Kaggle rows + Mifflin label | User asked to replace the synthetic data. Training directly on the Kaggle `Daily_Caloric_Intake` column scored MAE 497 (the column is noise, |r|<0.09 vs every feature). Hybrid keeps the real demographic rows + a Mifflin–St Jeor kcal label → MAE 114. ANN v0.2.0. See "ANN real-dataset migration". |
+| 34  | 3rd ML model is a health-risk SVM (not an SVR calorie predictor) | User wanted to demonstrate ML breadth. An SVM is a classifier; the one genuine gap was a *multi-factor* health indicator (the BMI category is a threshold lookup, not ML). Trained on the real Obesity-Levels dataset — it has a real 7-class label, so no synthetic label was needed (unlike the ANN). See "SVM health-risk model". |
+| 35  | Health-risk computed on demand, not persisted; new `health-risk` API module | Risk is a pure function of profile fields with no time-series value. `Prediction.source` stays `ann/fallback` (not widened). A dedicated module mirrors how `recommendations` is its own module. |
 
 ---
 

@@ -9,6 +9,7 @@ export const MEAL_TYPES = ["breakfast", "lunch", "dinner", "snack"] as const;
 export const BMI_CATEGORIES = ["underweight", "normal", "overweight", "obese"] as const;
 export const PREDICTION_SOURCES = ["ann", "fallback"] as const;
 export const COST_TIERS = ["low", "medium", "high"] as const;
+export const HEALTH_RISK_LEVELS = ["low", "moderate", "high"] as const;
 
 export const GenderSchema = z.enum(GENDERS);
 export const ActivityLevelSchema = z.enum(ACTIVITY_LEVELS);
@@ -19,6 +20,7 @@ export const MealTypeSchema = z.enum(MEAL_TYPES);
 export const BmiCategorySchema = z.enum(BMI_CATEGORIES);
 export const PredictionSourceSchema = z.enum(PREDICTION_SOURCES);
 export const CostTierSchema = z.enum(COST_TIERS);
+export const HealthRiskLevelSchema = z.enum(HEALTH_RISK_LEVELS);
 
 export type Gender = z.infer<typeof GenderSchema>;
 export type ActivityLevel = z.infer<typeof ActivityLevelSchema>;
@@ -29,6 +31,7 @@ export type MealType = z.infer<typeof MealTypeSchema>;
 export type BmiCategory = z.infer<typeof BmiCategorySchema>;
 export type PredictionSource = z.infer<typeof PredictionSourceSchema>;
 export type CostTier = z.infer<typeof CostTierSchema>;
+export type HealthRiskLevel = z.infer<typeof HealthRiskLevelSchema>;
 
 export const IsoDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Expected YYYY-MM-DD");
 export type IsoDate = z.infer<typeof IsoDateSchema>;
