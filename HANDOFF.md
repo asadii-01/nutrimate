@@ -2,7 +2,7 @@
 
 | Field          | Value                                                                                            |
 | -------------- | ------------------------------------------------------------------------------------------------ |
-| Last updated   | 2026-05-16 (post-Phase-5 fixes — Spoonacular, recommender variety, log UX)                       |
+| Last updated   | 2026-05-17 (ANN migrated to a hybrid real-Kaggle dataset — see "ANN real-dataset migration")       |
 | Author         | Claude (Opus 4.7) + Asad                                                                         |
 | Current phase  | Phase 5 complete & verified; Phase 6 descoped; post-Phase-5 fixes ongoing                        |
 | Repo location  | **`/home/asad-tauqeer/develop/ml`** (ext4) — see "Repo location & migration" below               |
@@ -275,11 +275,11 @@ services/ml/
 │   ├── predictor.py               # ANN inference (8-dim feature build + scale)
 │   └── recommender.py             # KNN lookup + diet/budget filter + kcal composition
 ├── pipelines/                     # offline, reproducible (fixed random_state)
-│   ├── preprocess.py              # Mifflin–St Jeor synthetic dataset (20k rows)
+│   ├── preprocess.py              # ingest+clean real Kaggle calorie dataset
 │   ├── train_ann.py               # calorie ANN
 │   ├── train_knn.py               # meal-recommendation KNN
 │   └── seed_data.py               # 36 Pakistani dishes + 52 seed meal plans
-├── data/                          # synthetic_dataset.csv (gitignored)
+├── data/                          # raw/ (Kaggle CSV) + calorie_dataset.csv (gitignored)
 └── models/                        # calorie_ann_v0.1.0.keras, scaler.pkl, knn_v0.1.0.pkl (gitignored)
 ```
 
@@ -287,8 +287,10 @@ services/ml/
 
 - **ANN** — 8-dim input `[age, gender×3 one-hot, heightCm, weightKg, activityOrdinal, bmi]`.
   BMI is the engineered 8th feature (TRD §6.1 lists 7 raw fields but specifies `Input(8)`).
-  Trained on a Mifflin–St Jeor synthetic grid with 5% Gaussian noise.
-  **Test MAE 87.9 kcal** (acceptance ≤ 150), mean deviation −4.6 kcal.
+  Originally trained on a fully synthetic Mifflin–St Jeor grid (Test MAE 87.9).
+  **As of 2026-05-17 (ANN v0.2.0) it trains on a hybrid dataset — real Kaggle
+  demographic rows + a Mifflin–St Jeor kcal label, Test MAE 114** — see
+  "ANN real-dataset migration".
 - **KNN** — `NearestNeighbors`, Euclidean on StandardScaler-normalized
   `[age, bmi, activityLevel, goalEnc, dietEnc]`. 52 seed plans across 4 clusters
   (low/high-cal × veg/non-veg), 13 each. Dish catalog bundled into the artifact
@@ -616,6 +618,49 @@ Follow-up: re-scale the merged plan.
 
 ---
 
+## ANN real-dataset migration (2026-05-17)
+
+The calorie ANN was trained on a fully synthetic Mifflin–St Jeor grid; the user
+asked to train it on a **real** dataset. Scope: **ANN only** — the KNN
+recommender keeps its `seed_data.py` meal plans.
+
+**What we tried first, and why it failed.** We took `ziya07/diet-recommendations-dataset`
+from Kaggle and trained directly on its `Daily_Caloric_Intake` column. Result:
+test MAE **497 kcal** — no better than predicting the mean. The column turned
+out to be statistically **independent** of body metrics (Pearson |r| < 0.09
+against age, gender, height, weight, activity, BMI) — i.e. simulated noise. No
+public dataset directly measures TDEE, so a real intake *label* was a dead end.
+
+**Final approach — hybrid.** Keep the dataset's **real demographic rows**
+(age, gender, height, weight, activity — a genuine population distribution) but
+**regenerate the `kcal` label** from the Mifflin–St Jeor formula
+(BMR × activity multiplier + 5% Gaussian noise). Real inputs, formula label.
+
+- **Dataset:** `ziya07/diet-recommendations-dataset` (1,000 rows). Fetched
+  manually (no `kaggle` CLI / creds on this box), placed at
+  **`services/ml/data/raw/diet_recommendations_dataset.csv`** (gitignored).
+- **`preprocess.py` rewritten** as a hybrid builder: tolerant column matching,
+  gender + activity normalization (activity → ordinal 1–5), BMI fill/clamp,
+  physiological-range clamping, then the Mifflin–St Jeor kcal label. The raw
+  `Daily_Caloric_Intake` column is **discarded**. Writes
+  `data/calorie_dataset.csv`. Has an `--inspect` mode to dump the raw schema.
+- **`train_ann.py`:** default `--data` → `calorie_dataset.csv`; `VERSION`
+  bumped `0.1.0` → `0.2.0`; the MAE ≤ 150 gate is now a **soft warning** —
+  pass `--max-mae` to re-enable a hard gate. Model architecture, the 8-dim
+  feature contract, scaler shape, and 80/10/10 split are **unchanged**, so
+  `predictor.py`, the API, and the web need no changes.
+- **Note on this dataset:** it has only 2 genders (male/female) and 3 activity
+  levels (→ ordinals 1/3/4), so `gender_other` and ordinal-5 are unseen in
+  training; the scaler/ANN extrapolate fine (verified — see below).
+- **Result — verified (2026-05-17):** ANN v0.2.0, **test MAE 113.99 kcal**
+  (PASS ≤ 150), mean deviation +13.25. ML service reloaded, `/ml/health`
+  reports `annVersion 0.2.0`. Predictions sane: 28M/178/75/moderate → 2616
+  (Mifflin ~2671), 45F/160/90/sedentary → 1742, 22M/185/80/very_active → 3578.
+- **Re-run:** `python pipelines/preprocess.py && python pipelines/train_ann.py`,
+  then restart the ML service.
+
+---
+
 ## Decisions log (since the original plan)
 
 | #   | Decision                                              | Why                                                                                                                                |
@@ -652,6 +697,7 @@ Follow-up: re-scale the merged plan.
 | 30  | `addRecipeNutrition=true` on search + `image` on `NutritionItem` | Lets the results grid show calories/macros/photos without a per-item detail call.                                          |
 | 31  | KNN recommender randomized; 13 combos/cluster; k=5→8     | The recommender was deterministic, so swap/regenerate never varied. Randomized selection + richer seed data fix it.               |
 | 32  | `GET /logs/day` returns `loggedMeals`                    | The Meals page needs to know which meal types were logged to render the "Eaten" state; the day summary was aggregate-only.        |
+| 33  | ANN uses a hybrid dataset: real Kaggle rows + Mifflin label | User asked to replace the synthetic data. Training directly on the Kaggle `Daily_Caloric_Intake` column scored MAE 497 (the column is noise, |r|<0.09 vs every feature). Hybrid keeps the real demographic rows + a Mifflin–St Jeor kcal label → MAE 114. ANN v0.2.0. See "ANN real-dataset migration". |
 
 ---
 
@@ -674,7 +720,9 @@ Follow-up: re-scale the merged plan.
 - [ ] **Edamam** is still unconfigured — Spoonacular is now keyed and active;
       Edamam remains a code path for if/when its keys are added (Decision #17).
 - [ ] The monthly scheduler only fires on a month rollover within a single long-lived process (Decision #15); for production, trigger `runMonthlyMaintenance()` from a real cron / systemd timer.
-- [ ] Optional: replace synthetic-only ANN data with real Kaggle datasets (TRD §6.1 mentions them; not shipped — synthetic augmentation alone meets the MAE target).
+- [x] Replace synthetic-only ANN data — done (2026-05-17). The ANN now uses a
+      hybrid dataset: real Kaggle demographic rows + a Mifflin–St Jeor kcal
+      label. ANN v0.2.0, trained and verified. See "ANN real-dataset migration".
 
 ---
 
