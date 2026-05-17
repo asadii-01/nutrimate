@@ -2,6 +2,7 @@
 
 Endpoints (TRD §6.4):
     GET  /ml/health             — model versions + load time
+    GET  /ml/metrics            — training-time metrics for all three models
     POST /ml/predict-calories   — ANN calorie prediction
     POST /ml/recommend-meals    — KNN meal recommendation
     POST /ml/predict-health-risk — SVM health-risk classification
@@ -33,6 +34,7 @@ from .schemas import (
     HealthRiskResponse,
     MealRecommendRequest,
     MealRecommendResponse,
+    ModelMetricsResponse,
 )
 
 logging.basicConfig(
@@ -87,6 +89,17 @@ async def health() -> HealthResponse:
         knnLoaded=store.knn_ready,
         svmLoaded=store.svm_ready,
         loadedAt=store.loaded_at,
+    )
+
+
+@app.get("/ml/metrics", response_model=ModelMetricsResponse)
+async def metrics() -> ModelMetricsResponse:
+    """Training-time metrics for the ANN, KNN and SVM (read from the pipelines'
+    metric files at startup). Informational — no fallback."""
+    return ModelMetricsResponse(
+        ann=store.metrics.get("ann"),
+        knn=store.metrics.get("knn"),
+        svm=store.metrics.get("svm"),
     )
 
 

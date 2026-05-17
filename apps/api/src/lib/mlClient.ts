@@ -77,3 +77,28 @@ export function recommendMeals(input: MealRecommendRequest): Promise<MealRecomme
 export function predictHealthRisk(input: HealthRiskRequest): Promise<HealthRiskMlResponse> {
   return callMl<HealthRiskMlResponse>("/ml/predict-health-risk", input);
 }
+
+/** Training-time metrics for the three models — mirrors `/ml/metrics`. */
+export interface ModelMetrics {
+  ann?: Record<string, unknown> | null;
+  knn?: Record<string, unknown> | null;
+  svm?: Record<string, unknown> | null;
+}
+
+/** Fetch the ML training metrics. Throws `MlServiceError` if the service is down. */
+export async function getModelMetrics(): Promise<ModelMetrics> {
+  let res: Response;
+  try {
+    res = await fetch(`${env.ML_SERVICE_URL}/ml/metrics`, {
+      signal: AbortSignal.timeout(env.ML_SERVICE_TIMEOUT_MS),
+    });
+  } catch (err) {
+    logger.warn({ err }, "ml service /ml/metrics request failed");
+    throw new MlServiceError("ML request to /ml/metrics failed");
+  }
+  if (!res.ok) {
+    logger.warn({ status: res.status }, "ml service /ml/metrics returned non-2xx");
+    throw new MlServiceError(`ML service /ml/metrics returned ${res.status}`);
+  }
+  return (await res.json()) as ModelMetrics;
+}

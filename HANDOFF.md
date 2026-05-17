@@ -2,7 +2,7 @@
 
 | Field          | Value                                                                                            |
 | -------------- | ------------------------------------------------------------------------------------------------ |
-| Last updated   | 2026-05-17 (added a 3rd ML model — health-risk SVM — see "SVM health-risk model")                  |
+| Last updated   | 2026-05-17 (Settings export reworked into a 7-day PDF ML report — see "Settings data export")        |
 | Author         | Claude (Opus 4.7) + Asad                                                                         |
 | Current phase  | Phase 5 complete & verified; Phase 6 descoped; post-Phase-5 fixes ongoing                        |
 | Repo location  | **`/home/asad-tauqeer/develop/ml`** (ext4) — see "Repo location & migration" below               |
@@ -32,6 +32,11 @@
   "Obesity Levels" dataset (test accuracy 96.2%). Exposed end-to-end:
   `POST /ml/predict-health-risk` → `GET /api/v1/health-risk` → a dashboard
   "Health risk" card. SVM v0.1.0, verified. See "SVM health-risk model".
+- **Settings data export → 7-day PDF (2026-05-17):** the Settings "Your data"
+  export now produces a **PDF** (was JSON), covers the **last 7 days** (was 30),
+  and adds an **ML model report** — each model's prediction plus the ANN/SVM
+  training accuracy. A new `GET /ml/metrics` → `GET /api/v1/models/metrics`
+  endpoint surfaces the training metrics. Verified. See "Settings data export".
 - **Project is a git repo** (branch `master`). Linear history on the ext4 copy:
   `4de2bf5` Phases 0–2 → `fa85873` Phase 3 → `93b077b` Phase 4 → `721ae59`
   Phase 5 → `c41872d` post-Phase-5 fixes → `92c4cdb` ANN hybrid-dataset
@@ -536,9 +541,10 @@ apps/web/src/
   trend, water Bar, macro donut, stacked macro Bar); derived achievement badges
   and AI-style insight cards computed client-side from `GET /logs/range`.
 - **Settings** — editable profile form (`PATCH /profile`, dirty-tracked),
-  a local-only water-reminder toggle, a client-side JSON data export, and sign
-  out. Password-change and account-deletion are intentionally **not** built —
-  no API endpoints exist for them (see follow-ups).
+  a local-only water-reminder toggle, a data export, and sign
+  out. (The export was reworked post-Phase-5 into a 7-day PDF ML report — see
+  "Settings data export".) Password-change and account-deletion are
+  intentionally **not** built — no API endpoints exist for them (see follow-ups).
 - **Recharts** is split into its own `charts` bundle via Vite `manualChunks`
   (app 49 kB / vendor 143 kB / charts 120 kB gzipped).
 
@@ -721,6 +727,47 @@ then restart the ML service.
 
 ---
 
+## Settings data export — 7-day PDF with ML report (2026-05-17)
+
+The Settings → "Your data" export previously produced a **JSON** file with the
+profile, the latest ANN prediction, and the **last 30 days** of logs. The user
+asked for three changes: shrink the window to **7 days**, add **each ML model's
+prediction and accuracy**, and emit a **PDF** instead of JSON.
+
+**The accuracy gap.** ANN test MAE (≈114 kcal) and SVM test accuracy (≈96.2%)
+were written by the training pipelines to `services/ml/models/metrics.json`,
+`svm_meta.json`, `knn_meta.json` — but **no API exposed them**. They are now
+surfaced through a live endpoint chain so the PDF always reflects the
+actually-trained models. The **KNN has no accuracy metric** — it is a
+deterministic nearest-neighbour lookup, not a scored classifier — so its
+meal-plan prediction is in the report but it is **omitted from the accuracy
+comparison** (the PDF says so explicitly).
+
+**Wiring (all additive):**
+- **ML service:** `ModelStore` (`artifacts.py`) reads the three metric files at
+  startup into `store.metrics`; new `GET /ml/metrics` (`main.py`,
+  `ModelMetricsResponse` in `schemas.py`) returns them. Missing files degrade
+  quietly. **Restart the ML service** to pick the endpoint up — it does not
+  auto-reload.
+- **API:** `mlClient.ts` gained `getModelMetrics()`; new `routes/models.ts`
+  serves `GET /api/v1/models/metrics` (bearer-guarded, `503` if ML is down),
+  mounted under `/models` in `routes/index.ts`.
+- **Web:** added `jspdf` + `jspdf-autotable`. New
+  `features/models/models.api.ts` (metrics fetch) and `lib/pdfExport.ts`
+  (`buildExportPdf()` — profile table, ML model report, recommended-meals table,
+  7-day log table). `SettingsPage.tsx` `onExport` now gathers the ANN/KNN/SVM
+  predictions + metrics + a **7-day** range, each call guarded so a missing
+  profile or offline ML degrades to a partial report. `pdfExport` is
+  dynamic-imported so jsPDF (~131 kB gz) loads only on click; `jspdf` is its own
+  Vite `manualChunks` bundle.
+
+**Result — verified (2026-05-17):** `pnpm typecheck/lint/build` green for web
+and API. `GET /ml/metrics` returns all three model blocks; `GET
+/api/v1/models/metrics` returns `200` with a bearer / `401` without. The
+in-browser PDF download is a manual check (per the manual-testing policy).
+
+---
+
 ## Decisions log (since the original plan)
 
 | #   | Decision                                              | Why                                                                                                                                |
@@ -760,6 +807,7 @@ then restart the ML service.
 | 33  | ANN uses a hybrid dataset: real Kaggle rows + Mifflin label | User asked to replace the synthetic data. Training directly on the Kaggle `Daily_Caloric_Intake` column scored MAE 497 (the column is noise, |r|<0.09 vs every feature). Hybrid keeps the real demographic rows + a Mifflin–St Jeor kcal label → MAE 114. ANN v0.2.0. See "ANN real-dataset migration". |
 | 34  | 3rd ML model is a health-risk SVM (not an SVR calorie predictor) | User wanted to demonstrate ML breadth. An SVM is a classifier; the one genuine gap was a *multi-factor* health indicator (the BMI category is a threshold lookup, not ML). Trained on the real Obesity-Levels dataset — it has a real 7-class label, so no synthetic label was needed (unlike the ANN). See "SVM health-risk model". |
 | 35  | Health-risk computed on demand, not persisted; new `health-risk` API module | Risk is a pure function of profile fields with no time-series value. `Prediction.source` stays `ann/fallback` (not widened). A dedicated module mirrors how `recommendations` is its own module. |
+| 36  | Model accuracies surfaced via a new `/ml/metrics` → `/api/v1/models/metrics` chain | The training metrics already existed as `models/*.json` artifacts but no API exposed them. A live endpoint keeps the export honest if a model is retrained, vs. hard-coding the numbers in the web app. KNN is omitted from the accuracy comparison — a deterministic nearest-neighbour lookup has no accuracy metric. |
 
 ---
 

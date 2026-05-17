@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -91,6 +91,16 @@ class HealthRiskResponse(BaseModel):
     confidence: float = Field(ge=0, le=1)
     probabilities: dict[str, float]
     modelVersion: str
+
+
+# --- /ml/metrics ------------------------------------------------------------
+class ModelMetricsResponse(BaseModel):
+    """Training-time metrics for the three models, as written by the pipelines.
+    Any field is None if its metrics file is missing."""
+
+    ann: dict[str, Any] | None = None
+    knn: dict[str, Any] | None = None
+    svm: dict[str, Any] | None = None
 
 
 # --- /ml/health -------------------------------------------------------------

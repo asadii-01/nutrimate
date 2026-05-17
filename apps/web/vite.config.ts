@@ -24,6 +24,7 @@ export default defineConfig({
       output: {
         manualChunks: {
           charts: ["recharts"],
+          pdf: ["jspdf", "jspdf-autotable"],
           vendor: ["react", "react-dom", "react-router-dom", "@tanstack/react-query", "axios"],
         },
       },

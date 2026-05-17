@@ -7,6 +7,7 @@ import { healthRiskRouter } from "../modules/health-risk/health-risk.routes.js";
 import { logsRouter } from "../modules/logs/logs.routes.js";
 import { nutritionRouter } from "../modules/nutrition/nutrition.routes.js";
 import { meRouter } from "./me.js";
+import { modelsRouter } from "./models.js";
 
 export const apiV1Router: Router = Router();
 
@@ -17,4 +18,5 @@ apiV1Router.use("/recommendations", recommendationsRouter);
 apiV1Router.use("/health-risk", healthRiskRouter);
 apiV1Router.use("/logs", logsRouter);
 apiV1Router.use("/nutrition", nutritionRouter);
+apiV1Router.use("/models", modelsRouter);
 apiV1Router.use(meRouter);

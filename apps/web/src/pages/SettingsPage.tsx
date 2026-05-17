@@ -21,6 +21,9 @@ import {
 import { useAuth } from "../features/auth/useAuth";
 import { useProfile, useUpdateProfile } from "../features/profile/profile.api";
 import { getCaloriePrediction } from "../features/predictions/predictions.api";
+import { getTodayPlan } from "../features/recommendations/recommendations.api";
+import { getHealthRisk } from "../features/health-risk/health-risk.api";
+import { getModelMetrics } from "../features/models/models.api";
 import { getRange } from "../features/logs/logs.api";
 import { useToast } from "../components/toast/useToast";
 import { Card } from "../components/ui/Card";
@@ -130,24 +133,28 @@ export function SettingsPage() {
   const onExport = async () => {
     setExporting(true);
     try {
-      const [prediction, range] = await Promise.all([
+      // Each call is guarded — a 404 (no profile) or an offline ML service
+      // degrades to a partial report rather than failing the whole export.
+      const [{ buildExportPdf }, prediction, plan, healthRisk, metrics, days] = await Promise.all([
+        // Lazy-loaded so jsPDF is only fetched when the user actually exports.
+        import("../lib/pdfExport"),
         getCaloriePrediction().catch(() => null),
-        getRange(isoDaysAgo(29), todayIso()).then((r) => r.days),
+        getTodayPlan().catch(() => null),
+        getHealthRisk().catch(() => null),
+        getModelMetrics().catch(() => null),
+        getRange(isoDaysAgo(6), todayIso())
+          .then((r) => r.days)
+          .catch(() => []),
       ]);
-      const payload = {
-        exportedAt: new Date().toISOString(),
-        account: { email: user?.email },
+      buildExportPdf({
+        email: user?.email,
         profile: profile.data,
-        latestPrediction: prediction,
-        last30Days: range,
-      };
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `nutrimate-export-${todayIso()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
+        prediction,
+        plan,
+        healthRisk,
+        metrics,
+        days,
+      });
       toast("Your data export has been downloaded.", "success");
     } catch {
       toast("Could not build the export. Please try again.", "error");
@@ -294,7 +301,8 @@ export function SettingsPage() {
         <h2 className="text-label-md uppercase text-on-surface-variant">Your data</h2>
         <div className="flex items-center justify-between gap-sm">
           <p className="text-body-md text-on-surface-variant">
-            Download your profile, latest target and last 30 days of logs as JSON.
+            Download your profile, each ML model's prediction and accuracy, and the last 7 days
+            of logs as a PDF report.
           </p>
           <Button variant="secondary" onClick={onExport} loading={exporting}>
             <Download size={18} /> Export

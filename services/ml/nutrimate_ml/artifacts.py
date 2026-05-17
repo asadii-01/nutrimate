@@ -3,6 +3,7 @@ so the service can come up degraded and 503 individual endpoints (TRD §6.5)."""
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import re
@@ -23,6 +24,9 @@ logger = logging.getLogger("nutrimate_ml.artifacts")
 _ANN_RE = re.compile(r"calorie_ann_v(?P<ver>[\d.]+)\.keras$")
 _KNN_RE = re.compile(r"knn_v(?P<ver>[\d.]+)\.pkl$")
 _SVM_RE = re.compile(r"svm_v(?P<ver>[\d.]+)\.pkl$")
+
+# Training-time metric files written by the pipelines, keyed by model.
+_METRICS_FILES = {"ann": "metrics.json", "knn": "knn_meta.json", "svm": "svm_meta.json"}
 
 
 def _latest(models_dir: Path, pattern: re.Pattern[str]) -> tuple[Path, str] | None:
@@ -54,6 +58,7 @@ class ModelStore:
         self.knn_version: str | None = None
         self.svm: dict[str, Any] | None = None
         self.svm_version: str | None = None
+        self.metrics: dict[str, dict[str, Any]] = {}
         self.loaded_at: str | None = None
         self.errors: list[str] = []
 
@@ -75,7 +80,24 @@ class ModelStore:
         self._load_ann(models_dir)
         self._load_knn(models_dir)
         self._load_svm(models_dir)
+        self._load_metrics(models_dir)
         self.loaded_at = datetime.now(timezone.utc).isoformat()
+
+    def _load_metrics(self, models_dir: Path) -> None:
+        """Read the pipelines' training-metric JSON files. Each is optional —
+        a missing or unreadable file just omits that model's metrics."""
+        for key, filename in _METRICS_FILES.items():
+            path = models_dir / filename
+            if not path.exists():
+                logger.warning("metrics file %s missing — %s metrics omitted", filename, key)
+                continue
+            try:
+                with path.open(encoding="utf-8") as fh:
+                    self.metrics[key] = json.load(fh)
+                logger.info("loaded %s metrics from %s", key, filename)
+            except (OSError, ValueError) as exc:  # noqa: BLE001 — degrade, don't crash
+                self.errors.append(f"{key} metrics load failed: {exc}")
+                logger.warning("failed to read %s: %s", filename, exc)
 
     def _load_ann(self, models_dir: Path) -> None:
         found = _latest(models_dir, _ANN_RE)
