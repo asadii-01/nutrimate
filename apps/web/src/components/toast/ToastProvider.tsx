@@ -7,9 +7,9 @@ import { ToastContext, type Toast, type ToastVariant } from "./ToastContext";
 const AUTO_DISMISS_MS = 4000;
 
 const VARIANT_STYLES: Record<ToastVariant, string> = {
-  success: "border-primary/30 bg-primary-container/10 text-on-surface",
+  success: "border-primary/30 bg-primary-container/60 text-on-surface",
   error: "border-error/30 bg-error-container text-on-error-container",
-  info: "border-tertiary/30 bg-tertiary-container/10 text-on-surface",
+  info: "border-tertiary/30 bg-tertiary-container/60 text-on-surface",
 };
 
 const VARIANT_ICON: Record<ToastVariant, React.ReactNode> = {

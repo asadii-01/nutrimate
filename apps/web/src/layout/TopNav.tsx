@@ -39,7 +39,7 @@ export function TopNav() {
     setMenuOpen(false);
     await logout();
     toast("You have been signed out.", "info");
-    navigate("/login", { replace: true });
+    navigate("/", { replace: true });
   };
 
   return (
@@ -48,7 +48,7 @@ export function TopNav() {
         <Logo compact />
       </div>
 
-      <form onSubmit={onSearch} className="relative ml-auto w-full max-w-md md:ml-0">
+      <form onSubmit={onSearch} className="relative ml-auto w-full max-w-md md:ml-8">
         <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-sm text-outline">
           <Search size={18} />
         </span>
@@ -62,7 +62,7 @@ export function TopNav() {
         />
       </form>
 
-      <div className="ml-auto flex items-center gap-xs md:ml-0">
+      <div className="ml-auto flex items-center gap-xs md:me-8 md:gap-sm">
         <button
           type="button"
           aria-label="Notifications"

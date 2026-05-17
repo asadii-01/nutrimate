@@ -60,7 +60,7 @@ function Toggle({
       <span
         className={
           "absolute top-1 h-5 w-5 rounded-full bg-surface-container-lowest shadow-card transition-transform " +
-          (checked ? "translate-x-6" : "translate-x-1")
+          (checked ? "translate-x-0" : "translate-x-[-20px]")
         }
       />
     </button>

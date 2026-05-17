@@ -10,6 +10,8 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   hint?: string;
   /** Optional leading icon (e.g. a Lucide icon element). */
   leadingIcon?: React.ReactNode;
+  /** Optional trailing slot — may be interactive (e.g. a password toggle). */
+  trailing?: React.ReactNode;
 }
 
 /**
@@ -17,7 +19,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
  * per DESIGN.md "Input Fields".
  */
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { label, error, hint, leadingIcon, className, id, ...rest },
+  { label, error, hint, leadingIcon, trailing, className, id, ...rest },
   ref,
 ) {
   const generatedId = useId();
@@ -47,12 +49,18 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
             "placeholder:text-outline transition-colors",
             "focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30",
             "disabled:cursor-not-allowed disabled:opacity-60",
-            leadingIcon ? "pl-10 pr-sm" : "px-sm",
+            leadingIcon ? "pl-10" : "pl-sm",
+            trailing ? "pr-10" : "pr-sm",
             error ? "border-error focus:border-error focus:ring-error/30" : "border-outline-variant",
             className,
           )}
           {...rest}
         />
+        {trailing ? (
+          <span className="absolute inset-y-0 right-0 flex items-center pr-sm text-outline">
+            {trailing}
+          </span>
+        ) : null}
       </div>
       {error ? (
         <p id={`${inputId}-error`} className="text-caption text-error">

@@ -2,7 +2,7 @@
 
 | Field          | Value                                                                                            |
 | -------------- | ------------------------------------------------------------------------------------------------ |
-| Last updated   | 2026-05-17 (Settings export reworked into a 7-day PDF ML report — see "Settings data export")        |
+| Last updated   | 2026-05-17 (Landing + auth pages redesigned to match the Stitch mocks — see "Landing & auth UI redesign") |
 | Author         | Claude (Opus 4.7) + Asad                                                                         |
 | Current phase  | Phase 5 complete & verified; Phase 6 descoped; post-Phase-5 fixes ongoing                        |
 | Repo location  | **`/home/asad-tauqeer/develop/ml`** (ext4) — see "Repo location & migration" below               |
@@ -37,10 +37,17 @@
   and adds an **ML model report** — each model's prediction plus the ANN/SVM
   training accuracy. A new `GET /ml/metrics` → `GET /api/v1/models/metrics`
   endpoint surfaces the training metrics. Verified. See "Settings data export".
+- **Landing & auth UI redesign (2026-05-17):** the public landing page (hero +
+  features) and the login/register page were rebuilt to match the Stitch mocks
+  in `designs/` — a two-column hero with floating stat cards, a bento-grid
+  features section, and a split-screen auth page with an image brand panel,
+  password show/hide, and (non-functional) social-login + forgot-password
+  controls. Verified — typecheck/lint/build green. See "Landing & auth UI redesign".
 - **Project is a git repo** (branch `master`). Linear history on the ext4 copy:
   `4de2bf5` Phases 0–2 → `fa85873` Phase 3 → `93b077b` Phase 4 → `721ae59`
   Phase 5 → `c41872d` post-Phase-5 fixes → `92c4cdb` ANN hybrid-dataset
-  migration. Working tree is clean.
+  migration → `3edb410` SVM health-risk model → `5a82c8d` Settings PDF export
+  → landing & auth UI redesign. Working tree is clean.
 - **The project now lives on ext4** at `/home/asad-tauqeer/develop/ml`. The old
   NTFS partition copy is detached and obsolete — all NTFS workaround notes below
   are **historical only**. See "Repo location & migration".
@@ -768,6 +775,53 @@ in-browser PDF download is a manual check (per the manual-testing policy).
 
 ---
 
+## Landing & auth UI redesign (2026-05-17)
+
+The public **landing page** and the **login/register page** were rebuilt to
+match the Stitch mocks under `designs/landing_page_public/` and
+`designs/login_register/`. Scope was the hero + features sections of the
+landing page and the whole auth page; testimonials, header, footer and the
+closing CTA were left as-is.
+
+**Assets.** Three images were added to `apps/web/public/` (committed, not
+gitignored): `hero.png` (meal bowl), `feature.png` (clay-pot rice), `login.png`
+(plated desi meal). They are referenced by absolute path (`/hero.png` etc.).
+
+**`LandingPage.tsx`:**
+- **Hero** is now a two-column grid — copy + CTAs on the left, `hero.png` in a
+  rounded card on the right with two absolutely-positioned floating stat cards
+  ("Daily Calorie Goal · 1,850 kcal", "Daal Chawal Logged · Budget Friendly").
+- **Features** became a 3-column **bento grid**: a wide "AI Calorie Prediction"
+  card, a narrow "Hydration Tracking" card (reuses `<ProgressRing>`), a narrow
+  image-topped "Budget-Friendly Local Meals" card, and a wide green-accent
+  "Personalized Meal Plans" card with an inset sample-meal panel.
+- The old flat 4-up `FEATURES` array was removed.
+
+**`AuthPage.tsx`:**
+- Split-screen: left brand panel is full-bleed `login.png` with a gradient
+  scrim + overlaid wordmark/heading; right panel holds the form.
+- Login/Register tab switcher; email + password fields; **password show/hide**
+  toggle; "Remember me" (local state only — `login()` takes no persistence
+  flag) and "Forgot password?"; "Or continue with" Google/Apple buttons.
+- **Forgot-password and Google/Apple have no backend** — per the user's choice
+  they render exactly as designed but fire a `toast(... "coming soon")` on
+  click. See follow-ups.
+
+**Shared component change:** `components/ui/Input.tsx` gained an optional
+`trailing` slot (interactive, unlike the existing `leadingIcon`) to host the
+password-visibility toggle. Existing `Input` usages are unaffected.
+
+**Also in this commit** — three minor UI tweaks the user made by hand: toast
+background opacity bumped (`/10` → `/60`) for legibility, `TopNav` spacing
+nudged, sign-out now routes to `/` instead of `/login`, and the Settings
+`Toggle` knob offsets adjusted.
+
+**Verified (2026-05-17):** `pnpm --filter @nutrimate/web typecheck/lint/build`
+all green. Visual confirmation against a running dev server is a manual check
+(per the manual-testing policy).
+
+---
+
 ## Decisions log (since the original plan)
 
 | #   | Decision                                              | Why                                                                                                                                |
@@ -808,6 +862,8 @@ in-browser PDF download is a manual check (per the manual-testing policy).
 | 34  | 3rd ML model is a health-risk SVM (not an SVR calorie predictor) | User wanted to demonstrate ML breadth. An SVM is a classifier; the one genuine gap was a *multi-factor* health indicator (the BMI category is a threshold lookup, not ML). Trained on the real Obesity-Levels dataset — it has a real 7-class label, so no synthetic label was needed (unlike the ANN). See "SVM health-risk model". |
 | 35  | Health-risk computed on demand, not persisted; new `health-risk` API module | Risk is a pure function of profile fields with no time-series value. `Prediction.source` stays `ann/fallback` (not widened). A dedicated module mirrors how `recommendations` is its own module. |
 | 36  | Model accuracies surfaced via a new `/ml/metrics` → `/api/v1/models/metrics` chain | The training metrics already existed as `models/*.json` artifacts but no API exposed them. A live endpoint keeps the export honest if a model is retrained, vs. hard-coding the numbers in the web app. KNN is omitted from the accuracy comparison — a deterministic nearest-neighbour lookup has no accuracy metric. |
+| 37  | Auth page's social-login & forgot-password render but only toast "coming soon" | The Stitch mock shows Google/Apple sign-in and a reset link, but the API has no OAuth or password-reset flow (Decision #4 removed reset). User chose to keep them visually for design fidelity rather than omit them; clicking surfaces a "coming soon" toast. Tracked as a follow-up. |
+| 38  | `Input` gained an interactive `trailing` slot                | The redesigned password field needs a show/hide toggle button inside the input. The existing `leadingIcon` is `pointer-events-none`; `trailing` is a separate, interactive slot — reusable and leaves existing `Input` callers untouched. |
 
 ---
 
@@ -827,6 +883,10 @@ in-browser PDF download is a manual check (per the manual-testing policy).
 - [ ] **Recommendation/meal-plan cards still have no photos** — the KNN seed
       data and `food_catalog` carry no images (only the Spoonacular nutrition
       search does now). Wire photos into the recommender data if wanted.
+- [ ] **Auth page has decorative-only controls** — the redesigned login page
+      shows Google/Apple sign-in and "Forgot password?" to match the mock, but
+      none have a backend; they fire a "coming soon" toast. Wire up OAuth and a
+      reset flow, or remove them, before launch (see Decision #37).
 - [ ] **Edamam** is still unconfigured — Spoonacular is now keyed and active;
       Edamam remains a code path for if/when its keys are added (Decision #17).
 - [ ] The monthly scheduler only fires on a month rollover within a single long-lived process (Decision #15); for production, trigger `runMonthlyMaintenance()` from a real cron / systemd timer.
