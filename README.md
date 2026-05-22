@@ -1,86 +1,125 @@
 # NutriMate
 
-> AI-powered diet & meal recommendation system — personalized calorie targets,
-> meal plans, hydration goals and health-risk insights for students, gym
-> beginners, and budget-conscious users (with a Pakistani-market focus).
+> AI-powered diet and meal recommendation platform with calorie targets, meal planning, hydration guidance, and health-risk insights for students, gym beginners, and budget-conscious users.
 
-NutriMate combines **three machine-learning models** — an ANN for daily-calorie
-prediction, a KNN meal-recommendation engine, and an SVM health-risk classifier
-— behind a clean, responsive React interface, with graceful fallbacks when the
-ML service is unavailable.
+NutriMate combines a React + Vite frontend, an Express API gateway, and a FastAPI machine-learning service into one monorepo. The system uses three models behind the scenes: an ANN for daily calorie prediction, a KNN meal recommender, and an SVM health-risk classifier. When the ML service is unavailable, the product falls back to deterministic rules so the core experience still works.
 
-See [`PRD.md`](./PRD.md), [`TRD.md`](./TRD.md), and
-[`IMPLEMENTATION_PLAN.md`](./IMPLEMENTATION_PLAN.md) for full product and
-technical specifications.
+See [PRD.md](./PRD.md), [TRD.md](./TRD.md), and [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) for the full product and technical background.
 
----
+## Screenshots
+
+<table>
+	<tr>
+		<td align="center" width="50%">
+			<img src="./screenshots/landing_page.png" alt="NutriMate landing page" width="100%">
+			<br><strong>Landing page</strong>
+		</td>
+		<td align="center" width="50%">
+			<img src="./screenshots/dashboard.png" alt="NutriMate dashboard" width="100%">
+			<br><strong>Dashboard</strong>
+		</td>
+	</tr>
+	<tr>
+		<td align="center" width="50%">
+			<img src="./screenshots/settings.png" alt="Profile settings screen" width="100%">
+			<br><strong>Profile settings</strong>
+		</td>
+		<td align="center" width="50%">
+			<img src="./screenshots/progress.png" alt="Progress analytics screen" width="100%">
+			<br><strong>Progress analytics</strong>
+		</td>
+	</tr>
+	<tr>
+		<td align="center" width="50%">
+			<img src="./screenshots/meal_plans.png" alt="Meal plans screen" width="100%">
+			<br><strong>Meal plans</strong>
+		</td>
+		<td align="center" width="50%">
+			<img src="./screenshots/nutrition_search.png" alt="Nutrition search screen" width="100%">
+			<br><strong>Nutrition search</strong>
+		</td>
+	</tr>
+	<tr>
+		<td align="center" width="50%">
+			<img src="./screenshots/log_meal.png" alt="Log meal screen" width="100%">
+			<br><strong>Log meal</strong>
+		</td>
+		<td align="center" width="50%">
+			<img src="./screenshots/settings.png" alt="Settings screen" width="100%">
+			<br><strong>Settings</strong>
+		</td>
+	</tr>
+</table>
+
+## What’s inside
+
+- Personalized calorie targets powered by a prediction model with graceful fallback logic.
+- Meal recommendations built around profile, goal, dietary preference, and budget.
+- Health-risk classification with clear output for the user and API consumers.
+- A responsive frontend with a guided onboarding flow, dashboard, meal logging, and analytics.
+- Shared TypeScript schemas so the web app, API, and ML service stay aligned.
 
 ## Monorepo Layout
 
 ```
 nutrimate/
 ├── apps/
-│   ├── web/                # React + Vite SPA — 9 screens, design-system theme
-│   └── api/                # Express API gateway — auth, profile, predictions,
-│   │                       #   recommendations, logs, nutrition, health-risk
+│   ├── web/                # React + Vite SPA
+│   └── api/                # Express API gateway
 ├── services/
-│   └── ml/                 # FastAPI service — ANN + KNN + SVM models
+│   └── ml/                 # FastAPI ML service
 ├── packages/
-│   └── shared-types/       # Zod schemas + TS types (single source of truth FE↔BE)
+│   └── shared-types/       # Shared TS types and schemas
+├── screenshots/            # Product screenshots used in this README
 ├── PRD.md                  # Product requirements
 ├── TRD.md                  # Technical requirements
-└── IMPLEMENTATION_PLAN.md  # Phased build plan
+└── IMPLEMENTATION_PLAN.md  # Phased delivery plan
 ```
 
----
+## Tech Stack
 
-## Prerequisites
+| Layer       | Technology                                                   |
+| ----------- | ------------------------------------------------------------ |
+| Frontend    | React, Vite, TypeScript, Tailwind CSS, React Query, Recharts |
+| API         | Node.js, Express, MongoDB, JWT, Zod, Pino                    |
+| ML service  | Python, FastAPI, TensorFlow, scikit-learn                    |
+| Shared code | Workspace packages and shared TypeScript schemas             |
 
-| Tool               | Version         | Install                                                      |
-| ------------------ | --------------- | ------------------------------------------------------------ |
-| Node.js            | 20 LTS or newer | https://nodejs.org / via `nvm install 20` (we run v24)       |
-| pnpm               | 9.x             | `corepack enable && corepack prepare pnpm@9.15.0 --activate` |
-| Python             | 3.11            | https://www.python.org — TensorFlow 2.16 needs 3.11/3.12     |
-| MongoDB            | 7.x             | https://www.mongodb.com/docs/manual/installation/            |
+## Requirements
 
-Verify after installing:
+| Tool    | Version     | Notes                                        |
+| ------- | ----------- | -------------------------------------------- |
+| Node.js | 20 or newer | The repo is tested with modern Node releases |
+| pnpm    | 9.x         | Managed through Corepack                     |
+| Python  | 3.11.x      | Required for the ML service and TensorFlow   |
+| MongoDB | 7.x         | Local database for the API                   |
+
+Verify your environment:
 
 ```bash
-node --version    # v20+ (we run v24 locally)
-pnpm --version    # 9.x
-python3 --version # 3.11.x
+node --version
+pnpm --version
+python3 --version
 mongosh --version
 ```
 
-> **No Docker is used for the MVP.** All services run directly on the host.
+## Quick Start
 
----
+1. Install dependencies with `pnpm install`.
+2. Copy `.env.example` to `.env` and add your secrets and connection strings.
+3. Build the shared package with `pnpm --filter @nutrimate/shared-types build`.
+4. Start MongoDB locally.
+5. Set up the ML service virtual environment in `services/ml` and install its Python dependencies.
 
-## First-Time Setup
+Example setup commands:
 
 ```bash
-# 1. Install JS workspace dependencies
 pnpm install
-
-# 2. Copy the env template and fill in secrets / DB URI
 cp .env.example .env
-# Set JWT_ACCESS_SECRET and JWT_REFRESH_SECRET (each ≥ 32 chars):
-#   openssl rand -hex 32
-# Optionally set SPOONACULAR_API_KEY for live nutrition search.
-
-# 3. Build the shared types package
 pnpm --filter @nutrimate/shared-types build
-
-# 4. Start MongoDB
-sudo systemctl start mongod        # or: mongod --dbpath ~/data/db
-
-# 5. Confirm Mongo is reachable
-mongosh "mongodb://127.0.0.1:27017"
 ```
 
-### ML service setup (Python)
-
-The ML service has its own Python virtualenv:
+### ML service setup
 
 ```bash
 cd services/ml
@@ -89,102 +128,82 @@ source .venv/bin/activate
 pip install -e ".[dev]"
 ```
 
-Then train the models (offline, reproducible). See
-[`services/ml/README.md`](./services/ml/README.md) for dataset placement:
+Train the models from the ML service directory:
 
 ```bash
-python pipelines/preprocess.py          # ANN dataset
-python pipelines/train_ann.py           # calorie ANN
-python pipelines/train_knn.py           # meal-recommendation KNN
-python pipelines/preprocess_obesity.py  # SVM dataset
-python pipelines/train_svm.py           # health-risk SVM
+python pipelines/preprocess.py
+python pipelines/train_ann.py
+python pipelines/train_knn.py
+python pipelines/preprocess_obesity.py
+python pipelines/train_svm.py
 ```
 
----
+See [services/ml/README.md](./services/ml/README.md) for dataset placement and model details.
 
-## Running the Full Stack
+## Run Locally
 
-Start the four processes (each in its own terminal):
+Start the full stack in separate terminals:
 
 ```bash
-# 1. MongoDB
+# MongoDB
 mongod --dbpath ~/data/db
 
-# 2. ML service (FastAPI) on :8000
+# ML service on :8000
 cd services/ml && source .venv/bin/activate
 uvicorn nutrimate_ml.main:app --host 0.0.0.0 --port 8000
 
-# 3. API gateway (Express) on :4000
-pnpm --filter @nutrimate/api seed:catalog    # one-time, idempotent — seeds the food catalog
+# API on :4000
+pnpm --filter @nutrimate/api seed:catalog
 pnpm --filter @nutrimate/api dev
 
-# 4. Web client (Vite) on :5173
+# Web app on :5173
 pnpm --filter @nutrimate/web dev
 ```
 
-Open http://localhost:5173 — register, complete the profile wizard, and explore.
-The app degrades gracefully if the ML service is down (Mifflin–St Jeor calorie
-fallback, curated-catalog meal fallback, BMI-band health-risk fallback).
+Open the web app at http://localhost:5173. The experience degrades gracefully if the ML service is offline, using deterministic fallback logic for calories, meal planning, and health-risk guidance.
 
----
+## Workspace Scripts
 
-## Workspace Scripts (root)
-
-| Command             | What it does                           |
-| ------------------- | -------------------------------------- |
-| `pnpm install`      | Install all JS workspace deps          |
-| `pnpm build`        | Run `build` in every workspace package |
-| `pnpm typecheck`    | TypeScript check across all workspaces |
-| `pnpm lint`         | ESLint on all JS/TS                    |
-| `pnpm format`       | Prettier write all supported files     |
-| `pnpm format:check` | Prettier check (CI-friendly)           |
+| Command             | What it does                            |
+| ------------------- | --------------------------------------- |
+| `pnpm install`      | Install all workspace dependencies      |
+| `pnpm build`        | Build every package in the monorepo     |
+| `pnpm typecheck`    | Run TypeScript checks across workspaces |
+| `pnpm lint`         | Run ESLint across the repo              |
+| `pnpm format`       | Format supported files with Prettier    |
+| `pnpm format:check` | Check formatting in CI-friendly mode    |
 
 Per-package commands:
 
 ```bash
-pnpm --filter @nutrimate/api dev            # API dev server (:4000)
-pnpm --filter @nutrimate/api seed:catalog   # seed the food catalog (idempotent)
-pnpm --filter @nutrimate/web dev            # web dev server (:5173)
-pnpm --filter @nutrimate/web build          # production build → apps/web/dist
+pnpm --filter @nutrimate/api dev
+pnpm --filter @nutrimate/api seed:catalog
+pnpm --filter @nutrimate/web dev
+pnpm --filter @nutrimate/web build
 ```
-
----
 
 ## Environment Variables
 
-All variables live in a single repo-root `.env` (see `.env.example`). Highlights:
+All runtime variables live in the repo-root `.env` file. Common ones include:
 
-| Variable                                  | Used by | Notes                                          |
-| ----------------------------------------- | ------- | ---------------------------------------------- |
-| `MONGODB_URI`                             | api     | MongoDB connection string                      |
-| `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET`| api     | Each must be ≥ 32 chars                         |
-| `ML_SERVICE_URL`                          | api     | ML service base URL (default `:8000`)           |
-| `SPOONACULAR_API_KEY`                     | api     | Optional — enables live recipe/nutrition search |
-| `EDAMAM_APP_ID` / `EDAMAM_APP_KEY`        | api     | Optional — Edamam fallback provider             |
-| `ML_KNN_K`                                | ml      | KNN neighbour count (default 8)                  |
-| `VITE_API_BASE_URL`                       | web     | API base URL the SPA calls                       |
+| Variable                                   | Used by | Notes                                         |
+| ------------------------------------------ | ------- | --------------------------------------------- |
+| `MONGODB_URI`                              | api     | MongoDB connection string                     |
+| `JWT_ACCESS_SECRET` / `JWT_REFRESH_SECRET` | api     | Each must be at least 32 characters           |
+| `ML_SERVICE_URL`                           | api     | ML service base URL, default `:8000`          |
+| `SPOONACULAR_API_KEY`                      | api     | Optional recipe and nutrition search provider |
+| `EDAMAM_APP_ID` / `EDAMAM_APP_KEY`         | api     | Optional fallback provider                    |
+| `ML_KNN_K`                                 | ml      | KNN neighbour count, default `8`              |
+| `VITE_API_BASE_URL`                        | web     | API base URL for the SPA                      |
 
-Without nutrition API keys, search degrades to a local `food_catalog` text
-search — the endpoint stays useful.
+If external nutrition APIs are not configured, search falls back to the local food catalog.
 
----
+## Related Docs
 
-## Project Status
-
-| Phase | Description                | Status        |
-| ----- | -------------------------- | ------------- |
-| 0     | Scaffolding & shared types | ✅ Done       |
-| 1     | API skeleton + auth        | ✅ Done       |
-| 2     | ML service (ANN/KNN/SVM)   | ✅ Done       |
-| 3     | API business logic         | ✅ Done       |
-| 4     | Frontend foundation        | ✅ Done       |
-| 5     | Pages (9 screens)          | ✅ Done       |
-| 6     | Quality gates              | ⬛ Descoped   |
-
-All feature phases are complete and verified end-to-end against the live local
-stack. Phase 6 (the automated-test suite) was descoped; testing is manual.
-
----
+- [PRD.md](./PRD.md)
+- [TRD.md](./TRD.md)
+- [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md)
+- [services/ml/README.md](./services/ml/README.md)
 
 ## License
 
